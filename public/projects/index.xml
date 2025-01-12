@@ -14,7 +14,9 @@
       <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/aipplier/</guid>
-      <description>An LLM-Based Web Automation Agent for automatig job applications on popular job boards. Try it out here</description>
+      <description>An LLM-Based Web Automation Agent for automating job applications on popular job boards.
+Built Using Langgraph, Playwright and GPT4-O.
+Try it out here</description>
     </item>
     
     <item>
