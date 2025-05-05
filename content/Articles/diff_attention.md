@@ -12,18 +12,16 @@ Categories: ['NLP','LLM']
 
 
 ## Introduction
-Over the last few years, Transformers have emerged as the de-facto deep learning architecture in language models. Fundamentally changing the field of machine learning and Artificial intelligence as a whole.
-Their unprecendented success in solving complex language tasks, reasoning (or mimmicking it) in solving math and coding problems, have ushered in a new era in AI, powering successful AI products like ChatGPT.
+Over the last few years, Transformers have emerged as the de-facto deep learning architecture in modelling language. 
+Their unprecendented success in solving complex language tasks, reasoning (or mimmicking it), solving math and coding problems, have ushered in a new era in AI, powering successful AI products like ChatGPT.
 
-The key innovation of transformers lies in the self-attention mechanism, which allows each tokens in the input sequence to directly interact with every other token in the sequence.
+The key innovation of transformers lies in the self-attention mechanism, which allows each tokens in the input sequence to attend to every other token in the sequence.
 
-The self-attention mechanism is a series of transformations that allow transformers introduce information about a token's context into it's latent space representation( aka Embeddings).
-
-In simple terms, self attention turns each token's embeddings into a weighted sum of all the other embeddings in a sequence, creating an embedding that incorporates information about the other tokens in the sequence. 
+The self-attention mechanism is a series of transformations that allow transformers introduce information about a token's context into it's latent space representation and was introduced in the seminal Transformers [paper](attention_is_all_you_need_goes_here) as Scaled Dot Product Attention.
 
 ![self-attention example]('/self_attn.png')
 
-The goal of self-attention in the image above would be to create an embedding for the token "flies" that encodes the flow of time in the first sequence, and one that has encodes flies in relation to insects in the second sequence.
+In the image above, Ideally we expect the self-attention mechanism to create an embedding for the token "flies" that encodes a meaning closer to "the flow of time" in the first sentence, and one that has encodes flies in relation to insects in the second sentence.
 
 In recent times, most of the spotlight in research on self-attention has been on techniques focused on optimizing computational and memory efficiency such as ![Flash attention (2022)](https://arxiv.org/abs/2205.14135). However transformers are still notorious 
 
