@@ -7,15 +7,26 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright Damilola John &amp;copy; 2023</copyright>
-    <lastBuildDate>Fri, 15 Mar 2024 04:14:46 +0100</lastBuildDate><atom:link href="//localhost:1313/tags/agents/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 15 Oct 2024 04:14:46 +0100</lastBuildDate><atom:link href="//localhost:1313/tags/agents/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title> AIpplier</title>
+      <link>//localhost:1313/projects/aipplier/</link>
+      <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/projects/aipplier/</guid>
+      <description>&lt;h2 id=&#34;an-llm-based-web-automation-agent-for-automatig-job-applications-on-popular-job-boards&#34;&gt;An LLM-Based Web Automation Agent for automatig job applications on popular job boards.&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.aipplier.com/&#34;&gt;Try it out here&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    
     <item>
       <title>SabiYarn: Training a Foundational Language Model on Nigerian Languages</title>
       <link>//localhost:1313/projects/sabiyarn/</link>
       <pubDate>Fri, 15 Mar 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/sabiyarn/</guid>
-      <description>Training a 125M parameter decoder-only model on 70b tokens of Nigerian Languages. demo
-Article</description>
+      <description>&lt;h2 id=&#34;training-a-125m-parameter-decoder-only-model-on-70b-tokens-of-nigerian-languages&#34;&gt;Training a 125M parameter decoder-only model on 70b tokens of Nigerian Languages.&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://huggingface.co/spaces/BeardedMonster/SabiYarn_125M&#34;&gt;demo&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://damilojohn.github.io/posts/sabiyarn.md&#34;&gt;Article&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     
   </channel>
