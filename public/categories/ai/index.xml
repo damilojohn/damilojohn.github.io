@@ -14,8 +14,14 @@
       <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/aipplier/</guid>
+<<<<<<< HEAD
       <description>&lt;h2 id=&#34;an-llm-based-web-automation-agent-for-automatig-job-applications-on-popular-job-boards&#34;&gt;An LLM-Based Web Automation Agent for automatig job applications on popular job boards.&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://www.aipplier.com/&#34;&gt;Try it out here&lt;/a&gt;&lt;/p&gt;</description>
+=======
+      <description>An LLM-Based Web Automation Agent for automating job applications on popular job boards.
+Built Using Langgraph, Playwright and GPT4-O.
+Try it out here</description>
+>>>>>>> dami2.0
     </item>
     
   </channel>

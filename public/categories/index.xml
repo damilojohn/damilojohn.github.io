@@ -27,6 +27,27 @@
     </item>
     
     <item>
+<<<<<<< HEAD
+=======
+      <title>Python</title>
+      <link>//localhost:1313/categories/python/</link>
+      <pubDate>Wed, 11 Dec 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/categories/python/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Software Engineering</title>
+      <link>//localhost:1313/categories/software-engineering/</link>
+      <pubDate>Wed, 11 Dec 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/categories/software-engineering/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+>>>>>>> dami2.0
       <title>Agents</title>
       <link>//localhost:1313/categories/agents/</link>
       <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>

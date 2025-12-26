@@ -7,7 +7,7 @@ type: page
 # Hi I'm  Damilola 
 
  
-I'm Currently an undergrad at the University of Lagos, studying for my Bachelors in Computer Engineering.
+a 4th year undergrad at the University of Lagos,studying Computer Engineering.
 
 
 

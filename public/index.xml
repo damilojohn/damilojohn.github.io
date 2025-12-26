@@ -14,10 +14,24 @@
       <pubDate>Wed, 11 Dec 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/diff_attention/</guid>
+<<<<<<< HEAD
       <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;Over the last few years, Transformers have emerged as the de-facto deep learning architecture in language models. Fundamentally changing the field of machine learning and Artificial intelligence as a whole.
 Their unprecendented success in solving complex language tasks, reasoning (or mimmicking it) in solving math and coding problems, have ushered in a new era in AI, powering successful AI products like ChatGPT.&lt;/p&gt;
 &lt;p&gt;The key innovation of transformers lies in the self-attention mechanism, which allows each tokens in the input sequence to directly interact with every other token in the sequence.&lt;/p&gt;</description>
+=======
+      <description>Introduction Over the last few years, Transformers have emerged as the de-facto deep learning architecture in modelling language. Their unprecendented success in solving complex language tasks, reasoning (or mimmicking it), solving math and coding problems, have ushered in a new era in AI, powering successful AI products like ChatGPT.
+The key innovation of transformers lies in the self-attention mechanism, which allows each tokens in the input sequence to attend to every other token in the sequence.</description>
+    </item>
+    
+    <item>
+      <title>What do you do when majority of your Async Functions are blocking?</title>
+      <link>//localhost:1313/articles/threadpools/</link>
+      <pubDate>Wed, 11 Dec 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/threadpools/</guid>
+      <description></description>
+>>>>>>> dami2.0
     </item>
     
     <item>
@@ -26,8 +40,14 @@ Their unprecendented success in solving complex language tasks, reasoning (or mi
       <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/aipplier/</guid>
+<<<<<<< HEAD
       <description>&lt;h2 id=&#34;an-llm-based-web-automation-agent-for-automatig-job-applications-on-popular-job-boards&#34;&gt;An LLM-Based Web Automation Agent for automatig job applications on popular job boards.&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://www.aipplier.com/&#34;&gt;Try it out here&lt;/a&gt;&lt;/p&gt;</description>
+=======
+      <description>An LLM-Based Web Automation Agent for automating job applications on popular job boards.
+Built Using Langgraph, Playwright and GPT4-O.
+Try it out here</description>
+>>>>>>> dami2.0
     </item>
     
     <item>
@@ -122,11 +142,21 @@ Smartphone Cameras have compensated for their hardware limitations due to the li
     </item>
     
     <item>
+      <title>How Cut Cross Entropy reduces memory consumption in LLM Training</title>
+      <link>//localhost:1313/articles/cut-cross-entropy/</link>
+      <pubDate>Wed, 10 May 2023 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/cut-cross-entropy/</guid>
+      <description>Cross Entropy </description>
+    </item>
+    
+    <item>
       <title>About me</title>
       <link>//localhost:1313/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>//localhost:1313/about/</guid>
+<<<<<<< HEAD
       <description>&lt;h1 id=&#34;hi-im--damilola&#34;&gt;Hi I&amp;rsquo;m  Damilola&lt;/h1&gt;
 &lt;p&gt;I&amp;rsquo;m Currently an undergrad at the University of Lagos, studying for my Bachelors in Computer Engineering.&lt;/p&gt;
 &lt;h1 id=&#34;research&#34;&gt;Research&lt;/h1&gt;
@@ -146,6 +176,12 @@ Smartphone Cameras have compensated for their hardware limitations due to the li
 &lt;/li&gt;
 &lt;li&gt;&lt;/li&gt;
 &lt;/ul&gt;</description>
+=======
+      <description>Hi I&amp;rsquo;m Damilola a 4th year undergrad at the University of Lagos,studying Computer Engineering.
+Research Semi-Supervised Learning with Transformers for Sentiment Analysis of Yoruba Sentences
+Training Nigeria&amp;rsquo;s First Foundational Decoder-only Language Model
+Books I&amp;rsquo;m Currently Reading: </description>
+>>>>>>> dami2.0
     </item>
     
     

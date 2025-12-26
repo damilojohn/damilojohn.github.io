@@ -44,5 +44,14 @@ The last few years have witnessed a revolution in NLP catalyzed mainly by the in
 Smartphone Cameras have compensated for their hardware limitations due to the limited space to fit actual optics (like movable lenses to alter focus or depth of view ), and the limitations that comes with the technology behind digital cameras (CMOS sensors) , with the enormous computational power of their processors and have had to use clever algorithms to provide features like Zoom, Object-sensitive focus among others. These algorithms have incorporated some AI techniques in recent times to provide some unimaginable features like taking Google pixel&amp;rsquo;s night mode that allows you to take high definition pictures in extremely low-light .&lt;/p&gt;</description>
     </item>
     
+    <item>
+      <title>How Cut Cross Entropy reduces memory consumption in LLM Training</title>
+      <link>//localhost:1313/articles/cut-cross-entropy/</link>
+      <pubDate>Wed, 10 May 2023 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/cut-cross-entropy/</guid>
+      <description>Cross Entropy </description>
+    </item>
+    
   </channel>
 </rss>
