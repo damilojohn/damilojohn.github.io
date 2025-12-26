@@ -5,7 +5,13 @@
     <loc>//localhost:1313/articles/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
+    <loc>//localhost:1313/tags/async/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
     <loc>//localhost:1313/categories/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/coroutines/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/</loc>
@@ -20,6 +26,15 @@
     <loc>//localhost:1313/categories/nlp/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
+    <loc>//localhost:1313/tags/python/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/categories/python/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/categories/software-engineering/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
     <loc>//localhost:1313/tags/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
@@ -27,6 +42,9 @@
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/articles/diff_attention/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/articles/threadpools/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/projects/aipplier/</loc>
@@ -108,6 +126,12 @@
     <lastmod>2023-05-10T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/categories/computer-vision/</loc>
+    <lastmod>2023-05-10T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/articles/cut-cross-entropy/</loc>
+    <lastmod>2023-05-10T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/llms/</loc>
     <lastmod>2023-05-10T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/about/</loc>

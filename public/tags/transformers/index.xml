@@ -58,5 +58,14 @@ The Dataset Our dataset is a csv containing 45,000 samples. The dataset is made 
       <description>Tokenization is an umbrella term for the methods used to turn texts into chunks of words or sub-words. Tokenization has a lot of applications in computer science, from compilers to Natural Language Processing. In this article, we would be focusing on tokenizers in Language models, in particular, a method of tokenization called Byte Pair Encoding. The last few years have witnessed a revolution in NLP catalyzed mainly by the introduction of the transformers architecture in 2017 with the paper &amp;lsquo;Attention is all you need &amp;rsquo; epitomized by the introduction of ChatGPT in late 2022.</description>
     </item>
     
+    <item>
+      <title>How Cut Cross Entropy reduces memory consumption in LLM Training</title>
+      <link>//localhost:1313/articles/cut-cross-entropy/</link>
+      <pubDate>Wed, 10 May 2023 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/cut-cross-entropy/</guid>
+      <description>Cross Entropy </description>
+    </item>
+    
   </channel>
 </rss>

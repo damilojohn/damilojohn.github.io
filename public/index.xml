@@ -19,6 +19,15 @@ The key innovation of transformers lies in the self-attention mechanism, which a
     </item>
     
     <item>
+      <title>What do you do when majority of your Async Functions are blocking?</title>
+      <link>//localhost:1313/articles/threadpools/</link>
+      <pubDate>Wed, 11 Dec 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/threadpools/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title> AIpplier</title>
       <link>//localhost:1313/projects/aipplier/</link>
       <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
@@ -111,12 +120,21 @@ Computational photography describes signal processing techniques and algorithms 
     </item>
     
     <item>
+      <title>How Cut Cross Entropy reduces memory consumption in LLM Training</title>
+      <link>//localhost:1313/articles/cut-cross-entropy/</link>
+      <pubDate>Wed, 10 May 2023 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/cut-cross-entropy/</guid>
+      <description>Cross Entropy </description>
+    </item>
+    
+    <item>
       <title>About me</title>
       <link>//localhost:1313/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>//localhost:1313/about/</guid>
-      <description>Hi I&amp;rsquo;m Damilola I&amp;rsquo;m Currently an undergrad at the University of Lagos, studying for my Bachelors in Computer Engineering.
+      <description>Hi I&amp;rsquo;m Damilola a 4th year undergrad at the University of Lagos,studying Computer Engineering.
 Research Semi-Supervised Learning with Transformers for Sentiment Analysis of Yoruba Sentences
 Training Nigeria&amp;rsquo;s First Foundational Decoder-only Language Model
 Books I&amp;rsquo;m Currently Reading: </description>

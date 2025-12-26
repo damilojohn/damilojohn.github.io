@@ -38,5 +38,14 @@ I thought it would be interesting to teach a language model to do this. You migh
 I thought it would be interesting to finetune a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn&amp;rsquo;t require intelligence and can be done with very trivial algorithms,you would be right, but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words.</description>
     </item>
     
+    <item>
+      <title>How Cut Cross Entropy reduces memory consumption in LLM Training</title>
+      <link>//localhost:1313/articles/cut-cross-entropy/</link>
+      <pubDate>Wed, 10 May 2023 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/cut-cross-entropy/</guid>
+      <description>Cross Entropy </description>
+    </item>
+    
   </channel>
 </rss>
