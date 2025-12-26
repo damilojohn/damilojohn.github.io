@@ -30,7 +30,6 @@ params:
   keywords: [Blog, Portfolio, PaperMod]
   author: Damilola John
   math: true
-  social: true
 
   homeInfoParams:
     Title: " Damilola John \U0001F44B"
