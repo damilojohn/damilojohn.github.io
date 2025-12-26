@@ -14,12 +14,6 @@
       <pubDate>Wed, 11 Dec 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/diff_attention/</guid>
-<<<<<<< HEAD
-      <description>&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
-&lt;p&gt;Over the last few years, Transformers have emerged as the de-facto deep learning architecture in language models. Fundamentally changing the field of machine learning and Artificial intelligence as a whole.
-Their unprecendented success in solving complex language tasks, reasoning (or mimmicking it) in solving math and coding problems, have ushered in a new era in AI, powering successful AI products like ChatGPT.&lt;/p&gt;
-&lt;p&gt;The key innovation of transformers lies in the self-attention mechanism, which allows each tokens in the input sequence to directly interact with every other token in the sequence.&lt;/p&gt;</description>
-=======
       <description>Introduction Over the last few years, Transformers have emerged as the de-facto deep learning architecture in modelling language. Their unprecendented success in solving complex language tasks, reasoning (or mimmicking it), solving math and coding problems, have ushered in a new era in AI, powering successful AI products like ChatGPT.
 The key innovation of transformers lies in the self-attention mechanism, which allows each tokens in the input sequence to attend to every other token in the sequence.</description>
     </item>
@@ -31,7 +25,6 @@ The key innovation of transformers lies in the self-attention mechanism, which a
       
       <guid>//localhost:1313/articles/threadpools/</guid>
       <description></description>
->>>>>>> dami2.0
     </item>
     
     <item>
@@ -40,14 +33,9 @@ The key innovation of transformers lies in the self-attention mechanism, which a
       <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/aipplier/</guid>
-<<<<<<< HEAD
-      <description>&lt;h2 id=&#34;an-llm-based-web-automation-agent-for-automatig-job-applications-on-popular-job-boards&#34;&gt;An LLM-Based Web Automation Agent for automatig job applications on popular job boards.&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&#34;https://www.aipplier.com/&#34;&gt;Try it out here&lt;/a&gt;&lt;/p&gt;</description>
-=======
       <description>An LLM-Based Web Automation Agent for automating job applications on popular job boards.
 Built Using Langgraph, Playwright and GPT4-O.
 Try it out here</description>
->>>>>>> dami2.0
     </item>
     
     <item>
@@ -56,10 +44,9 @@ Try it out here</description>
       <pubDate>Sun, 15 Sep 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/zeeno/</guid>
-      <description>&lt;h1 id=&#34;find-books-about-topicsideas--in-your-head&#34;&gt;Find books about topics/ideas  in your head&lt;/h1&gt;
-&lt;p&gt;A recommendation service that let&amp;rsquo;s you find books about any topic or ideas you are thinking about by describing them in natural language.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/damilojohn/zeno&#34;&gt;Github repo&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://zeeno.vercel.app&#34;&gt;Link&lt;/a&gt;&lt;/p&gt;</description>
+      <description>Find books about topics/ideas in your head A recommendation service that let&amp;rsquo;s you find books about any topic or ideas you are thinking about by describing them in natural language.
+Github repo
+Link</description>
     </item>
     
     <item>
@@ -68,9 +55,8 @@ Try it out here</description>
       <pubDate>Thu, 15 Aug 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/traceroute/</guid>
-      <description>&lt;h1 id=&#34;tracking-a-packet-from-source-to-destination&#34;&gt;Tracking a packet from source to destination.&lt;/h1&gt;
-&lt;p&gt;A tool for tracing the path followed by an internet packet across the internet implemented in python. Inspired by TraceRoute the Unix tool.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/damilojohn/traceroute&#34;&gt;github&lt;/a&gt;&lt;/p&gt;</description>
+      <description>Tracking a packet from source to destination. A tool for tracing the path followed by an internet packet across the internet implemented in python. Inspired by TraceRoute the Unix tool.
+github</description>
     </item>
     
     <item>
@@ -79,8 +65,8 @@ Try it out here</description>
       <pubDate>Sat, 15 Jun 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/text-desrambler/</guid>
-      <description>&lt;p&gt;Two words are anagrams if one can be formed by permuting the letters of the other. Applying the same logic to a sentence, would be saying that two sentences are anagrams(no such thing) if their component words can be permutated to form clones of each other.&lt;/p&gt;
-&lt;p&gt;I thought it would be interesting to teach a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn&amp;rsquo;t require intelligence and can be done with very trivial algorithms,you would be right,  but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words. For example, the following sequence:&lt;/p&gt;</description>
+      <description>Two words are anagrams if one can be formed by permuting the letters of the other. Applying the same logic to a sentence, would be saying that two sentences are anagrams(no such thing) if their component words can be permutated to form clones of each other.
+I thought it would be interesting to teach a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn&amp;rsquo;t require intelligence and can be done with very trivial algorithms,you would be right, but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words.</description>
     </item>
     
     <item>
@@ -89,9 +75,8 @@ Try it out here</description>
       <pubDate>Fri, 15 Mar 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/sabiyarn/</guid>
-      <description>&lt;h2 id=&#34;training-a-125m-parameter-decoder-only-model-on-70b-tokens-of-nigerian-languages&#34;&gt;Training a 125M parameter decoder-only model on 70b tokens of Nigerian Languages.&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&#34;https://huggingface.co/spaces/BeardedMonster/SabiYarn_125M&#34;&gt;demo&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://damilojohn.github.io/posts/sabiyarn.md&#34;&gt;Article&lt;/a&gt;&lt;/p&gt;</description>
+      <description>Training a 125M parameter decoder-only model on 70b tokens of Nigerian Languages. demo
+Article</description>
     </item>
     
     <item>
@@ -100,9 +85,8 @@ Try it out here</description>
       <pubDate>Wed, 10 Jan 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/text_descrambler/</guid>
-      <description>&lt;h2 id=&#34;finetuning-gpt2-to-reconstruct-sentences&#34;&gt;Finetuning GPT2 to Reconstruct sentences&lt;/h2&gt;
-&lt;p&gt;Two words are anagrams if one can be formed by permuting the letters of the other. Applying the same logic to a sentence, would be saying that two sentences are anagrams(no such thing) if their component words can be permutated to form clones of each other.&lt;/p&gt;
-&lt;p&gt;I thought it would be interesting to finetune a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn&amp;rsquo;t require intelligence and can be done with very trivial algorithms,you would be right,  but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words. For example, the following sequence:&lt;/p&gt;</description>
+      <description>Finetuning GPT2 to Reconstruct sentences Two words are anagrams if one can be formed by permuting the letters of the other. Applying the same logic to a sentence, would be saying that two sentences are anagrams(no such thing) if their component words can be permutated to form clones of each other.
+I thought it would be interesting to finetune a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn&amp;rsquo;t require intelligence and can be done with very trivial algorithms,you would be right, but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words.</description>
     </item>
     
     <item>
@@ -111,11 +95,9 @@ Try it out here</description>
       <pubDate>Sat, 19 Aug 2023 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/language_classification/</guid>
-      <description>&lt;h1&gt;&lt;/h1&gt;
-&lt;p&gt;This is  a fun side project where I explored transformers based sentiment classification for the first time by training BERT to identify 15 of the most popular programming languages.&lt;/p&gt;
-&lt;p&gt;i startED with simple machine learning approaches and gradually work our way up to more complex methods till we have a satisfactory solution.&lt;/p&gt;
-&lt;h2 id=&#34;the-dataset&#34;&gt;The Dataset&lt;/h2&gt;
-&lt;p&gt;Our dataset is a csv containing 45,000 samples. The dataset is made up of two columns, the &amp;lsquo;code&amp;rsquo; feature contains  code snippets we want to classify and the language column, which is our label contains the programming language it belongs to.Our train and test datasets were created from stratified sampling based on the target variable.&lt;/p&gt;</description>
+      <description>This is a fun side project where I explored transformers based sentiment classification for the first time by training BERT to identify 15 of the most popular programming languages.
+i startED with simple machine learning approaches and gradually work our way up to more complex methods till we have a satisfactory solution.
+The Dataset Our dataset is a csv containing 45,000 samples. The dataset is made up of two columns, the &amp;lsquo;code&amp;rsquo; feature contains code snippets we want to classify and the language column, which is our label contains the programming language it belongs to.</description>
     </item>
     
     <item>
@@ -124,9 +106,7 @@ Try it out here</description>
       <pubDate>Thu, 20 Jul 2023 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/bpe/</guid>
-      <description>&lt;h1&gt;&lt;/h1&gt;
-&lt;p&gt;Tokenization is an umbrella term for the methods used to turn texts into chunks of words or sub-words. Tokenization has a lot of applications in computer science, from compilers to Natural Language Processing. In this article, we would be focusing on tokenizers in Language models, in particular, a method of tokenization called Byte Pair Encoding.
-The last few years have witnessed a revolution in NLP catalyzed mainly by the introduction of the transformers architecture in 2017 with the paper &amp;lsquo;Attention is all you need &amp;rsquo; epitomized by the introduction of ChatGPT in late 2022.&lt;/p&gt;</description>
+      <description>Tokenization is an umbrella term for the methods used to turn texts into chunks of words or sub-words. Tokenization has a lot of applications in computer science, from compilers to Natural Language Processing. In this article, we would be focusing on tokenizers in Language models, in particular, a method of tokenization called Byte Pair Encoding. The last few years have witnessed a revolution in NLP catalyzed mainly by the introduction of the transformers architecture in 2017 with the paper &amp;lsquo;Attention is all you need &amp;rsquo; epitomized by the introduction of ChatGPT in late 2022.</description>
     </item>
     
     <item>
@@ -135,10 +115,8 @@ The last few years have witnessed a revolution in NLP catalyzed mainly by the in
       <pubDate>Wed, 10 May 2023 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/computational-photography/</guid>
-      <description>&lt;h1&gt;&lt;/h1&gt;
-&lt;p&gt;And Enhance!! (from Blade Runner ), that&amp;rsquo;s Computational Photography .&lt;/p&gt;
-&lt;p&gt;Computational photography describes signal processing techniques and algorithms that allow computers to replicate photographic processes like motion - blur correction , auto-focus ,depth-sensing , zoom and other features that would otherwise be impossible without optics ,while some of these processes use artificial intelligence techniques, Computational Photography is more than just AI , it involves a series of process like that takes an image from the Ones and Zeros on captured by image signal sensors and process to the final image displayed on screens . This article is going to be majorly focused on some computational photographical techniques employing AI.
-Smartphone Cameras have compensated for their hardware limitations due to the limited space to fit actual optics (like movable lenses to alter focus or depth of view ), and the limitations that comes with the technology behind digital cameras (CMOS sensors) , with the enormous computational power of their processors and have had to use clever algorithms to provide features like Zoom, Object-sensitive focus among others. These algorithms have incorporated some AI techniques in recent times to provide some unimaginable features like taking Google pixel&amp;rsquo;s night mode that allows you to take high definition pictures in extremely low-light .&lt;/p&gt;</description>
+      <description>And Enhance!! (from Blade Runner ), that&amp;rsquo;s Computational Photography .
+Computational photography describes signal processing techniques and algorithms that allow computers to replicate photographic processes like motion - blur correction , auto-focus ,depth-sensing , zoom and other features that would otherwise be impossible without optics ,while some of these processes use artificial intelligence techniques, Computational Photography is more than just AI , it involves a series of process like that takes an image from the Ones and Zeros on captured by image signal sensors and process to the final image displayed on screens .</description>
     </item>
     
     <item>
@@ -156,32 +134,10 @@ Smartphone Cameras have compensated for their hardware limitations due to the li
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>//localhost:1313/about/</guid>
-<<<<<<< HEAD
-      <description>&lt;h1 id=&#34;hi-im--damilola&#34;&gt;Hi I&amp;rsquo;m  Damilola&lt;/h1&gt;
-&lt;p&gt;I&amp;rsquo;m Currently an undergrad at the University of Lagos, studying for my Bachelors in Computer Engineering.&lt;/p&gt;
-&lt;h1 id=&#34;research&#34;&gt;Research&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&#34;&#34;&gt;Semi-Supervised Learning with Transformers for Sentiment Analysis of Yoruba Sentences&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;&lt;a href=&#34;&#34;&gt;Training Nigeria&amp;rsquo;s First Foundational Decoder-only Language Model&lt;/a&gt;&lt;/p&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h1 id=&#34;books-im-currently-reading&#34;&gt;Books I&amp;rsquo;m Currently Reading:&lt;/h1&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;img loading=&#34;lazy&#34; src=&#34;&#34; alt=&#34;The Map of Information&#34;  /&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;img loading=&#34;lazy&#34; src=&#34;&#34; alt=&#34;MapMatics&#34;  /&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;/li&gt;
-&lt;/ul&gt;</description>
-=======
       <description>Hi I&amp;rsquo;m Damilola a 4th year undergrad at the University of Lagos,studying Computer Engineering.
 Research Semi-Supervised Learning with Transformers for Sentiment Analysis of Yoruba Sentences
 Training Nigeria&amp;rsquo;s First Foundational Decoder-only Language Model
 Books I&amp;rsquo;m Currently Reading: </description>
->>>>>>> dami2.0
     </item>
     
     

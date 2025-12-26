@@ -14,16 +14,9 @@
       <pubDate>Sun, 15 Sep 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/zeeno/</guid>
-<<<<<<< HEAD
-      <description>&lt;h1 id=&#34;find-books-about-topicsideas--in-your-head&#34;&gt;Find books about topics/ideas  in your head&lt;/h1&gt;
-&lt;p&gt;A recommendation service that let&amp;rsquo;s you find books about any topic or ideas you are thinking about by describing them in natural language.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/damilojohn/zeno&#34;&gt;Github repo&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://zeeno.vercel.app&#34;&gt;Link&lt;/a&gt;&lt;/p&gt;</description>
-=======
       <description>Find books about topics/ideas in your head A recommendation service that let&amp;rsquo;s you find books about any topic or ideas you are thinking about by describing them in natural language.
 Github repo
 Link</description>
->>>>>>> dami2.0
     </item>
     
     <item>
@@ -32,14 +25,8 @@ Link</description>
       <pubDate>Thu, 15 Aug 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/traceroute/</guid>
-<<<<<<< HEAD
-      <description>&lt;h1 id=&#34;tracking-a-packet-from-source-to-destination&#34;&gt;Tracking a packet from source to destination.&lt;/h1&gt;
-&lt;p&gt;A tool for tracing the path followed by an internet packet across the internet implemented in python. Inspired by TraceRoute the Unix tool.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/damilojohn/traceroute&#34;&gt;github&lt;/a&gt;&lt;/p&gt;</description>
-=======
       <description>Tracking a packet from source to destination. A tool for tracing the path followed by an internet packet across the internet implemented in python. Inspired by TraceRoute the Unix tool.
 github</description>
->>>>>>> dami2.0
     </item>
     
   </channel>

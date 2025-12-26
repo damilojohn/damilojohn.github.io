@@ -14,14 +14,9 @@
       <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/aipplier/</guid>
-<<<<<<< HEAD
-      <description>&lt;h2 id=&#34;an-llm-based-web-automation-agent-for-automatig-job-applications-on-popular-job-boards&#34;&gt;An LLM-Based Web Automation Agent for automatig job applications on popular job boards.&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&#34;https://www.aipplier.com/&#34;&gt;Try it out here&lt;/a&gt;&lt;/p&gt;</description>
-=======
       <description>An LLM-Based Web Automation Agent for automating job applications on popular job boards.
 Built Using Langgraph, Playwright and GPT4-O.
 Try it out here</description>
->>>>>>> dami2.0
     </item>
     
     <item>
@@ -30,10 +25,9 @@ Try it out here</description>
       <pubDate>Sun, 15 Sep 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/zeeno/</guid>
-      <description>&lt;h1 id=&#34;find-books-about-topicsideas--in-your-head&#34;&gt;Find books about topics/ideas  in your head&lt;/h1&gt;
-&lt;p&gt;A recommendation service that let&amp;rsquo;s you find books about any topic or ideas you are thinking about by describing them in natural language.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/damilojohn/zeno&#34;&gt;Github repo&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://zeeno.vercel.app&#34;&gt;Link&lt;/a&gt;&lt;/p&gt;</description>
+      <description>Find books about topics/ideas in your head A recommendation service that let&amp;rsquo;s you find books about any topic or ideas you are thinking about by describing them in natural language.
+Github repo
+Link</description>
     </item>
     
     <item>
@@ -42,9 +36,8 @@ Try it out here</description>
       <pubDate>Thu, 15 Aug 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/traceroute/</guid>
-      <description>&lt;h1 id=&#34;tracking-a-packet-from-source-to-destination&#34;&gt;Tracking a packet from source to destination.&lt;/h1&gt;
-&lt;p&gt;A tool for tracing the path followed by an internet packet across the internet implemented in python. Inspired by TraceRoute the Unix tool.&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/damilojohn/traceroute&#34;&gt;github&lt;/a&gt;&lt;/p&gt;</description>
+      <description>Tracking a packet from source to destination. A tool for tracing the path followed by an internet packet across the internet implemented in python. Inspired by TraceRoute the Unix tool.
+github</description>
     </item>
     
     <item>
@@ -53,9 +46,8 @@ Try it out here</description>
       <pubDate>Fri, 15 Mar 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/sabiyarn/</guid>
-      <description>&lt;h2 id=&#34;training-a-125m-parameter-decoder-only-model-on-70b-tokens-of-nigerian-languages&#34;&gt;Training a 125M parameter decoder-only model on 70b tokens of Nigerian Languages.&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&#34;https://huggingface.co/spaces/BeardedMonster/SabiYarn_125M&#34;&gt;demo&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://damilojohn.github.io/posts/sabiyarn.md&#34;&gt;Article&lt;/a&gt;&lt;/p&gt;</description>
+      <description>Training a 125M parameter decoder-only model on 70b tokens of Nigerian Languages. demo
+Article</description>
     </item>
     
     <item>
@@ -64,9 +56,8 @@ Try it out here</description>
       <pubDate>Wed, 10 Jan 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/projects/text_descrambler/</guid>
-      <description>&lt;h2 id=&#34;finetuning-gpt2-to-reconstruct-sentences&#34;&gt;Finetuning GPT2 to Reconstruct sentences&lt;/h2&gt;
-&lt;p&gt;Two words are anagrams if one can be formed by permuting the letters of the other. Applying the same logic to a sentence, would be saying that two sentences are anagrams(no such thing) if their component words can be permutated to form clones of each other.&lt;/p&gt;
-&lt;p&gt;I thought it would be interesting to finetune a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn&amp;rsquo;t require intelligence and can be done with very trivial algorithms,you would be right,  but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words. For example, the following sequence:&lt;/p&gt;</description>
+      <description>Finetuning GPT2 to Reconstruct sentences Two words are anagrams if one can be formed by permuting the letters of the other. Applying the same logic to a sentence, would be saying that two sentences are anagrams(no such thing) if their component words can be permutated to form clones of each other.
+I thought it would be interesting to finetune a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn&amp;rsquo;t require intelligence and can be done with very trivial algorithms,you would be right, but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words.</description>
     </item>
     
   </channel>
