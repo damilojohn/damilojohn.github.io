@@ -7,14 +7,15 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright Damilola John &amp;copy; 2023</copyright>
-    <lastBuildDate>Wed, 10 May 2023 04:14:46 +0100</lastBuildDate><atom:link href="//localhost:1313/tags/llms/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 04 Jan 2026 07:25:46 +0100</lastBuildDate><atom:link href="//localhost:1313/tags/llms/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>How Cut Cross Entropy reduces memory consumption in LLM Training</title>
       <link>//localhost:1313/articles/cut-cross-entropy/</link>
-      <pubDate>Wed, 10 May 2023 04:14:46 +0100</pubDate>
+      <pubDate>Sun, 04 Jan 2026 07:25:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/cut-cross-entropy/</guid>
-      <description>Cross Entropy </description>
+      <description>Cross Entropy 2024 saw the first 100m$+ training runs, while the insane compute requirements of training Large Language Models is no secret, this jump brought more attention to the need to find tricks and methods to optimize both the transformers architecture and the training process (infrastructure).
+The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM.</description>
     </item>
     
   </channel>

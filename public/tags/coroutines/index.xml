@@ -9,12 +9,12 @@
     <copyright>Copyright Damilola John &amp;copy; 2023</copyright>
     <lastBuildDate>Wed, 11 Dec 2024 04:14:46 +0100</lastBuildDate><atom:link href="//localhost:1313/tags/coroutines/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>What do you do when majority of your Async Functions are blocking?</title>
+      <title>What do you do when majority of your Coroutines are blocking?</title>
       <link>//localhost:1313/articles/threadpools/</link>
       <pubDate>Wed, 11 Dec 2024 04:14:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/threadpools/</guid>
-      <description></description>
+      <description>Introduction I recently had to implement a feature at work that basically sent a ton of emails, with custom attachments to a ton of buyers across the world. Since we had a broker, for placing mails on a queue that were picked and sent by workers, how architecture was already primed for asynchronous communication. However, on the client side, placing these emails asynchronously wasn&amp;rsquo;t as simple. The main path between creating the mail and actually placing it on the service bus (broker), consisted mainly of blocking, CPU heavy tasks ; reading excel files, adding user information, serializing excel files to an in-memory buffer, base64 encoding these bytes and decoding them to strings, before finally creating the message json and sending it to the queue (this is non blocking).</description>
     </item>
     
   </channel>
