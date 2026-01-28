@@ -3,42 +3,27 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>//localhost:1313/articles/</loc>
-    <lastmod>2026-01-04T07:25:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/categories/</loc>
-    <lastmod>2026-01-04T07:25:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/deep-learning/</loc>
-    <lastmod>2026-01-04T07:25:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/</loc>
-    <lastmod>2026-01-04T07:25:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/articles/cut-cross-entropy/</loc>
-    <lastmod>2026-01-04T07:25:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/llms/</loc>
-    <lastmod>2026-01-04T07:25:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/categories/nlp/</loc>
-    <lastmod>2026-01-04T07:25:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/</loc>
-    <lastmod>2026-01-04T07:25:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/transformers/</loc>
-    <lastmod>2026-01-04T07:25:46+01:00</lastmod>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/async/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
+    <loc>//localhost:1313/categories/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
     <loc>//localhost:1313/tags/coroutines/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/categories/llm/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/natural-language-processing/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/categories/nlp/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/python/</loc>
@@ -48,6 +33,12 @@
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/categories/software-engineering/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/</loc>
+    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/transformers/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/articles/diff_attention/</loc>
@@ -113,6 +104,9 @@
     <loc>//localhost:1313/articles/language_classification/</loc>
     <lastmod>2023-08-19T04:14:46+01:00</lastmod>
   </url><url>
+    <loc>//localhost:1313/tags/deep-learning/</loc>
+    <lastmod>2023-08-19T04:14:46+01:00</lastmod>
+  </url><url>
     <loc>//localhost:1313/categories/finetuning/</loc>
     <lastmod>2023-08-19T04:14:46+01:00</lastmod>
   </url><url>
@@ -137,5 +131,9 @@
     <loc>//localhost:1313/about/</loc>
   </url><url>
     <loc>//localhost:1313/archives/</loc>
+  </url><url>
+    <loc>//localhost:1313/articles/cut-cross-entropy/</loc>
+  </url><url>
+    <loc>//localhost:1313/tags/llms/</loc>
   </url>
 </urlset>

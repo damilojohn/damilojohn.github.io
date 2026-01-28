@@ -6,15 +6,14 @@
     <description>Recent content in LLMs on Home</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>Copyright Damilola John &amp;copy; 2023</copyright>
-    <lastBuildDate>Sun, 04 Jan 2026 07:25:46 +0100</lastBuildDate><atom:link href="//localhost:1313/tags/llms/index.xml" rel="self" type="application/rss+xml" />
+    <copyright>Copyright Damilola John &amp;copy; 2023</copyright><atom:link href="//localhost:1313/tags/llms/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>How Cut Cross Entropy reduces memory consumption in LLM Training</title>
+      <title>Cut Cross Entropy: 20x Memory reduction in LLM training through optimized cross entropy kernels</title>
       <link>//localhost:1313/articles/cut-cross-entropy/</link>
-      <pubDate>Sun, 04 Jan 2026 07:25:46 +0100</pubDate>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>//localhost:1313/articles/cut-cross-entropy/</guid>
-      <description>Cross Entropy 2024 saw the first 100m$+ training runs, while the insane compute requirements of training Large Language Models is no secret, this jump brought more attention to the need to find tricks and methods to optimize both the transformers architecture and the training process (infrastructure).
+      <description>Introduction 2024 saw the first 100m$+ training runs, while the insane compute requirements of training Large Language Models is no secret, this jump brought more attention to the need to find tricks and methods to optimize both the transformers architecture and the training process (infrastructure).
 The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM.</description>
     </item>
     
