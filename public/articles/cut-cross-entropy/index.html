@@ -129,7 +129,7 @@ The biggest / most successful of these optimizations in recent times has been fl
     <h1 class="post-title">
       Cut Cross Entropy: 20x Memory reduction in LLM training through optimized cross entropy kernels
     </h1>
-    <div class="post-meta">6 min&amp;nbsp;·&amp;nbsp;1233 words&amp;nbsp;·&amp;nbsp;Damilola John
+    <div class="post-meta">&lt;span title=&#39;2026-01-16 08:25:46 &#43;0100 WAT&#39;&gt;January 16, 2026&lt;/span&gt;&amp;nbsp;·&amp;nbsp;8 min&amp;nbsp;·&amp;nbsp;1582 words&amp;nbsp;·&amp;nbsp;Damilola John
 
 </div>
   </header> 
@@ -154,11 +154,10 @@ The biggest / most successful of these optimizations in recent times has been fl
                 <li>
                     <a href="#the-memory-problem" aria-label="The Memory Problem">The Memory Problem</a></li>
                 <li>
-                    <a href="#cut-cross-entropy" aria-label="Cut Cross Entropy">Cut Cross Entropy</a></li></ul>
+                    <a href="#cut-cross-entropy" aria-label="Cut Cross Entropy">Cut Cross Entropy</a>
                 </li>
-                <li>
-                    <a href="#looking-at-the-cut-cross-entropy-kernels" aria-label="Looking at the Cut Cross Entropy Kernels">Looking at the Cut Cross Entropy Kernels</a>
-                </li>
+            </ul>
+            </li>
             </ul>
         </div>
     </details>
@@ -235,7 +234,7 @@ B, S, V
 <p>Thus for every token, we predict the log probabilities for every token in the model&rsquo;s vocab. This is also done in parrallel.</p>
 <p>As mentioned earlier, the Logits are then used to generate the probability distribution, used in computing the cross entropy loss.</p>
 <h2 id="the-memory-problem">The Memory Problem<a hidden class="anchor" aria-hidden="true" href="#the-memory-problem">#</a></h2>
-<p>At inference, sampling from the model&rsquo;s predicted probabilities is efficient and independent of the prior sequence length. The language model produces one token at a time at each step, computing the probabilities and sampling from the distribution.</p>
+<p>At inference, sampling from the model&rsquo;s predicted probabilities is efficient for any token as it is independent of the sequence length, since the model produces one token at a time at each step using the hidden state E of the last token in the sequence.</p>
 <p>During Training, for a sequence</p>
 \[
 (x1, . . . , xN)
@@ -247,12 +246,71 @@ f(x1), f(x1, x2), . . . , f(x1, . . . , xN)
 \]
 <p>
 are also computed in parallel. However, extra memory is required for saving the activation outputs of each layer and optimizer states for computing the gradients for the backward pass, together with the model&rsquo;s weight.</p>
-<p>Researchers over the years have come up with different optimization techniques like activation checkpointing, Gradient checkpointing etc, to help optimize the memory consumption used during training.</p>
-<p>However, despite optimizing the memory consumption of gradients, activations and optimizer states, the unsuspecting final layer (computing the cross entropy loss) occupies most the model&rsquo;s memory footprint at training time.</p>
-<p>The Cut Cross Entropy team at Apple, noted in their paper that for Large Vocabulary models (See why Large Vocabularies), the log probabilites materialized for computing the cross entropy accounts for 40% to 90% (smaller models with larger vocabularies) of the memory consumption at training.</p>
-<p>To see</p>
+<p>Researchers over the years have come up with different optimization techniques like activation checkpointing, Gradient Accumulation etc, to help optimize memory consumption during training.</p>
+<p>However, despite optimizing the memory consumption of gradients, activations and optimizer states, the unsuspecting final layer (computing the cross entropy loss) occupies most of the model&rsquo;s memory footprint at training time.</p>
+<p>The Cut Cross Entropy team at Apple, noted in their paper that for Large Vocabulary models (See why Large Vocabularies are better), the log probabilites materialized for computing the cross entropy accounts for 40% to 90% (smaller models with larger vocabularies) of the memory consumption at training. With LLMs, larger vocabularies mean better text compression, and subsequently less compute during inference, the models also have a implicit representation for more tokens.</p>
+<p>To Understand why the cross entropy layer hogs so much memory during training, let&rsquo;s look closely at how the cross entropy loss is computed.</p>
+<p>The cross entropy loss is given as:</p>
+\[
+\ell_i(x) = \log \text{softmax}_{x_i}(C^\top E_i)
+\]
+<p>C⊤ and E maintain their values as the Classifier and Embedding matrices.</p>
+<p>we know the softmax function to be:</p>
+\[
+\frac{\exp(C^\top_{x_i} E_i)}{\sum_j \exp(C^\top_j E_i)}
+\]
+<p>thus, the cross entropy loss can be written as:</p>
+\[
+\ell_i(x) = \log \frac{\exp(C^\top_{x_i} E_i)}{\sum_j \exp(C^\top_j E_i)}
+\]
+<p>taking the log of the numerator and denominator gives:</p>
+\[
+\ell_i(x)= \log \exp(C^\top_{x_i} E_i) - \log \sum_j \exp(C^\top_j E_i)
+\]
+<p>which finally reduces to
+</p>
+\[
+\ell_i(x) = C^\top_{x_i} E_i - \log \sum_j \exp(C^\top_j E_i)
+\]
+<p>Using Gemma 2(8b), with a vocabulary size of 250,000 as an example:</p>
+<p>To compute the cross entropy loss,</p>
+<p>we must first perform an indexed matrix multplicaton</p>
+\[
+C^\top_{x_i} E_i
+\]
+<p>This is a simple dot product between the column vector $C^\top_{x_i}$which corresponds to the weights for the target class $x_i$ and the Embedding vector $E_I$</p>
+<p>To compute the second part of the equation, the  Log Sum Exp, we must first compute a bunch of intermediary tensors. To compute the Log Sum Exp,
+</p>
+\[
+\log \sum_j \exp(C^\top_j E_i)
+\]
+<p>we first compute</p>
+<p>the logits for all tokens in the vocab </p>
+\[(C^\top_j E_i) \]
+<ul>
+<li>
+<p>Find the max of the computed logits</p>
+</li>
+<li>
+<p>Substract the logits from the max (This is done for numerical stability to prevent floating point underflows)</p>
+</li>
+<li>
+<p>Compute the exponent of the normalized logits </p>
+\[exp(C^\top_j E_i)\]
+</li>
+<li>
+<p>sum the exponents </p>
+\[\sum_j \exp(C^\top_j E_i)\]
+</li>
+<li>
+<p>finally, we take the log of the sums and store it as the loss.</p>
+</li>
+</ul>
+<p>Each of these intermediary steps requires a tensor of size $ B, S, V$ in global memory.</p>
+<p>Assuming a batch size of 8, Gemma2 has a max sequence length of 80,000 and a vocab size of 256,128</p>
+<p>assuming Bf16 precision;</p>
+<p>Gemma 2 uses almost 256gb of memory on the cross entropy loss calculations alone.</p>
 <h2 id="cut-cross-entropy">Cut Cross Entropy<a hidden class="anchor" aria-hidden="true" href="#cut-cross-entropy">#</a></h2>
-<h1 id="looking-at-the-cut-cross-entropy-kernels">Looking at the Cut Cross Entropy Kernels<a hidden class="anchor" aria-hidden="true" href="#looking-at-the-cut-cross-entropy-kernels">#</a></h1>
 
 
   </div>
@@ -264,10 +322,10 @@ are also computed in parallel. However, extra memory is required for saving the 
       <li><a href="//localhost:1313/tags/llms/">LLMs</a></li>
     </ul>
 <nav class="paginav">
-  <a class="prev" href="//localhost:1313/articles/computational-photography/">
-    <span class="title">« Prev</span>
+  <a class="next" href="//localhost:1313/articles/diff_attention/">
+    <span class="title">Next »</span>
     <br>
-    <span>A guide on how AI is changing Computational Photography </span>
+    <span>Understanding Differential Attention.</span>
   </a>
 </nav>
 
