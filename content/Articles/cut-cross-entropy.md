@@ -16,7 +16,7 @@ Categories: ['NLP']
 
 The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM. (Essentially the idea here is that we tried to optimize self attention by modifying how the operation is performed on the GPU.). The trend of squeezing out performance as much as possible from the training infrastructure continued, with researchers writing their own optimal cuda kernels. Deepseek took this a step further, writing their own distributed file system (Fire Flyer FileSystem), a new attention mechanism (MultiHead Latent Attention with custom kernels), a highly tuned communication library for mixture-of-experts models (Deep-EP), and Deep Gemm, an FP-8 optimized matrix multiplication kernel library.
 
-However, looking beyond the model architecture and focusing on the training process, the cross entropy loss function has been often underlooked. Since language models essentially just autoregressively predict the next token, by sampling from a distribution (the token vocabulary), they can be thought of as classification models, with each class being a token in the model's vocabulary, and the the true value being the actual token in whatever dataset we are training on. 
+However, looking beyond the model itself, the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes. 
 
 ## A bit on Cross Entropy
 
