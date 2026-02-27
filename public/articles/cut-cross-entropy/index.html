@@ -129,7 +129,7 @@ The biggest / most successful of these optimizations in recent times has been fl
     <h1 class="post-title">
       Cut Cross Entropy: 20x Memory reduction in LLM training through optimized cross entropy kernels
     </h1>
-    <div class="post-meta">&lt;span title=&#39;2026-01-16 08:25:46 &#43;0100 WAT&#39;&gt;January 16, 2026&lt;/span&gt;&amp;nbsp;·&amp;nbsp;8 min&amp;nbsp;·&amp;nbsp;1540 words&amp;nbsp;·&amp;nbsp;Damilola John
+    <div class="post-meta">&lt;span title=&#39;2026-01-16 08:25:46 &#43;0100 WAT&#39;&gt;January 16, 2026&lt;/span&gt;&amp;nbsp;·&amp;nbsp;10 min&amp;nbsp;·&amp;nbsp;2014 words&amp;nbsp;·&amp;nbsp;Damilola John
 
 </div>
   </header> 
@@ -154,8 +154,13 @@ The biggest / most successful of these optimizations in recent times has been fl
                 <li>
                     <a href="#the-memory-problem" aria-label="The Memory Problem">The Memory Problem</a></li>
                 <li>
-                    <a href="#cut-cross-entropy" aria-label="Cut Cross Entropy">Cut Cross Entropy</a>
+                    <a href="#cut-cross-entropy" aria-label="Cut Cross Entropy">Cut Cross Entropy</a><ul>
+                        
+                <li>
+                    <a href="#forward-pass" aria-label="Forward Pass">Forward Pass</a>
                 </li>
+            </ul>
+            </li>
             </ul>
             </li>
             </ul>
@@ -278,7 +283,7 @@ are also computed in parallel. However, extra memory is required for saving the 
 \[
 C^\top_{x_i} E_i
 \]
-<p>This is a simple dot product between the column vector $C^\top_{x_i}$which corresponds to the weights for the target class $x_i$ and the Embedding vector $E_I$</p>
+<p>This is a simple dot product between the column vector $C^\top_{x_i}$which corresponds to the classifier weights for the target class $x_i$ and the Embedding vector $E_I$</p>
 <p>To compute the second part of the equation, the  Log Sum Exp, we must first compute a bunch of intermediary tensors. To compute the Log Sum Exp,
 </p>
 \[
@@ -306,11 +311,93 @@ C^\top_{x_i} E_i
 <p>finally, we take the log of the sums and store it as the loss.</p>
 </li>
 </ul>
-<p>Each of these intermediary steps requires a tensor of size $ B, S, V$ in global memory.</p>
-<p>Assuming a batch size of 8, Gemma2 has a max sequence length of 80,000 and a vocab size of 256,128</p>
-<p>assuming Bf16 precision;</p>
-<p>Gemma 2 uses almost 256gb of memory on the cross entropy loss calculations alone.</p>
+<p>Each of these steps requires intermediary tensors of size $ B, S, V$ in global memory.</p>
+<p>Gemma2 has a max sequence length of 80,000 and a vocab size of 256,128 assuming a batch size of 8 and Bf16 floating points precision;</p>
+<p>The total memory requirement sums to</p>
+\[
+8*800000*256128*2 = 256gb
+\]
+<p>about 256gb of memory, just to store the intermediate tensors required to compute the cross entropy loss, accounting for over 90% of the total memory consumption of the training process.</p>
 <h2 id="cut-cross-entropy">Cut Cross Entropy<a hidden class="anchor" aria-hidden="true" href="#cut-cross-entropy">#</a></h2>
+<p>Cut Cross Entropy approaches the memory problem through efficient forward and backward passes using custom fused kernels.</p>
+<h3 id="forward-pass">Forward Pass<a hidden class="anchor" aria-hidden="true" href="#forward-pass">#</a></h3>
+<p>The cross entropy loss is once again given as:</p>
+\[
+\ell_i(x) = C^\top_{x_i} E_i - \log \sum_j \exp(C^\top_j E_i)
+\]
+<p>We can break this into two separate steps , the indexed matrix multiplication and the Log Sum Exp.</p>
+<p>As mentioned earlier, a naive computation of the indexed matrix multiplication involves either indexing the classifier weight matrix (CI) with a memory cost of O(ND) in the worst case scenario, and then performing the dot product, or computing </p>
+\[(C^\top_j E_i) \]
+<p> which materializes the logits for every token and then indexing into the result to get the logit for the target class, with an O(N|V |) memory cost.</p>
+<p>Cut Cross Entropy uses a different approach,</p>
+<p><img loading="lazy" src="/indexed_mat_mul.png" alt="Indexed Matrix Multiplication"  />
+</p>
+<p>The above algorithm, uses tiling to efficiently materialize blocks of E and C in the on-chip SRAM (shared memory) on the GPU. Rather than materializing all the logits in global memory, we accumulate the dot product on each tile in o, then write final dot product to global memory for a block,</p>
+<p>?? to include values on how much memory is saved using tiling.</p>
+<p>This implementation is efficient and fast, because we can now compute the dot product C E without storing large tensors in memory.</p>
+<p>The triton implementation for this is shown below</p>
+<pre tabindex="0"><code>
+import triton
+import triton.language as tl
+
+
+def _indexed_neg_dot_forward_kernel(
+    E,
+    C,
+    Inds,
+    Valids,
+    Out,
+    B,
+    D,
+    stride_eb,
+    stride_ed,
+    stride_cv,
+    stride_cd,
+    stride_ib,
+    stride_vb,
+    B_BIN,
+    BLOCK_B: tl.constexpr,
+    BLOCK_D: tl.constexpr,
+    GROUP_B: tl.constexpr,
+    HAS_VALIDS: tl.constexpr,
+    EVEN_D: tl.constexpr,
+    SHIFT: tl.constexpr,
+):
+    pid = tl.program_id(axis=0)
+    num_b_chunks = tl.cdiv(B, BLOCK_B)
+    num_d_chunks = tl.cdiv(D, BLOCK_D)
+    num_d_in_group = GROUP_B * num_d_chunks
+    group_id = pid // num_d_in_group
+    first_pid_b = group_id * GROUP_B
+    group_size_b = min(num_b_chunks - first_pid_b, GROUP_B)
+    pid_b = first_pid_b + ((pid % num_d_in_group) % group_size_b)
+    pid_d = (pid % num_d_in_group) // group_size_b
+
+    offs_b = (tl.arange(0, BLOCK_B) + pid_b * BLOCK_B) % B
+    if HAS_VALIDS:
+        offs_b = tl.load(Valids + stride_vb * offs_b)
+
+    offs_d = tl.arange(0, BLOCK_D) + pid_d * BLOCK_D
+    e_ptrs = E + (stride_eb * offs_b[:, None] + stride_ed * offs_d[None, :])
+    if EVEN_D:
+        e = tl.load(e_ptrs)
+    else:
+        e = tl.load(e_ptrs, mask=offs_d[None, :] &lt; D, other=0.0)
+
+    inds = tl.load(Inds + stride_ib * ((offs_b + 1) if SHIFT else offs_b))
+
+    c_ptrs = C + (inds[:, None] * stride_cv + offs_d[None, :] * stride_cd)
+    if EVEN_D:
+        c = tl.load(c_ptrs)
+    else:
+        c = tl.load(c_ptrs, mask=offs_d[None, :] &lt; D, other=0.0)
+
+    offs_b = tl.arange(0, BLOCK_B) + pid_b * BLOCK_B
+    out_ptrs = Out + offs_b
+    dot = (e * c).to(tl.float32)
+    neg_dot = -tl.sum(dot, 1).to(out_ptrs.dtype.element_ty)
+    tl.atomic_add(out_ptrs, neg_dot, mask=offs_b &lt; B)
+</code></pre><p>The second part of our equation, the Log Sum Exp, is also implemented using a</p>
 
 
   </div>
