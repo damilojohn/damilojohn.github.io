@@ -45,51 +45,6 @@
     </item>
     
     <item>
-      <title>Agents</title>
-      <link>//localhost:1313/categories/agents/</link>
-      <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
-      
-      <guid>//localhost:1313/categories/agents/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>AI</title>
-      <link>//localhost:1313/categories/ai/</link>
-      <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
-      
-      <guid>//localhost:1313/categories/ai/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Cloud</title>
-      <link>//localhost:1313/categories/cloud/</link>
-      <pubDate>Sun, 15 Sep 2024 04:14:46 +0100</pubDate>
-      
-      <guid>//localhost:1313/categories/cloud/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Recsys</title>
-      <link>//localhost:1313/categories/recsys/</link>
-      <pubDate>Sun, 15 Sep 2024 04:14:46 +0100</pubDate>
-      
-      <guid>//localhost:1313/categories/recsys/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>Semantic Search</title>
-      <link>//localhost:1313/categories/semantic-search/</link>
-      <pubDate>Sun, 15 Sep 2024 04:14:46 +0100</pubDate>
-      
-      <guid>//localhost:1313/categories/semantic-search/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>Finetuning</title>
       <link>//localhost:1313/categories/finetuning/</link>
       <pubDate>Sat, 19 Aug 2023 04:14:46 +0100</pubDate>

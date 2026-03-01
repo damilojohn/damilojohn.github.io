@@ -1,271 +1,303 @@
 <!DOCTYPE html>
-<html lang="en" dir="auto">
-
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex, nofollow">
-<title>Projects | Home</title>
-<meta name="keywords" content="">
-<meta name="description" content="Projects - Home">
-<meta name="author" content="Damilola John">
-<link rel="canonical" href="//localhost:1313/projects/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.51ae2dfd23423d479cfd90ba4215aeebadfd8c0833c61a978bfbc8648cc56365.css" integrity="sha256-Ua4t/SNCPUec/ZC6QhWu6639jAgzxhqXi/vIZIzFY2U=" rel="preload stylesheet" as="style">
-<link rel="icon" href="//localhost:1313/static/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/static/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/static/favicon-32x32.png">
-<link rel="apple-touch-icon" href="//localhost:1313/static/apple-touch-icon.png">
-<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
-<meta name="theme-color" content="#2e2e33">
-<meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" type="application/rss+xml" href="//localhost:1313/projects/index.xml">
-<link rel="alternate" hreflang="en" href="//localhost:1313/projects/">
-<noscript>
-    <style>
-        #theme-toggle,
-        .top-link {
-            display: none;
-        }
-
-    </style>
-</noscript><link rel="stylesheet" href="/css/custom-effects.css"><script src="/js/custom-effects.js" defer></script>
-</head>
-
-<head>
-    ...
-    
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
+<html lang="en"><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Projects — Damilola John</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-      delimiters: [
-        {left: '\\[', right: '\\]', display: true},   
-        {left: '$$', right: '$$', display: true},     
-        {left: '\\(', right: '\\)', display: false},  
-      ],
-      throwOnError : false
-    });
-  });
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    primary: "#18181b",
+                    "background-light": "#ffffff",
+                    "background-dark": "#18181b",
+                    "text-light": "#27272a",
+                    "text-dark": "#e4e4e7",
+                    "accent-light": "#52525b",
+                    "accent-dark": "#a1a1aa",
+                },
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    serif: ['Merriweather', 'serif'],
+                },
+                borderRadius: {
+                    DEFAULT: "0.5rem",
+                },
+            },
+        },
+    };
 </script>
-    
-    ...
-</head>
-
-<body class="list" id="top">
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
+<style>
+    .nav-link {
+        position: relative;
     }
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        transform: scaleX(0);
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background-color: currentColor;
+        transform-origin: bottom right;
+        transition: transform 0.25s ease-out;
+    }
+    .nav-link:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+    }
+    .nav-link.active::after {
+        transform: scaleX(1);
+    }
+    .mobile-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+    .mobile-menu.open {
+        max-height: 500px;
+    }
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark transition-colors duration-300 antialiased min-h-screen flex flex-col font-sans">
 
-</script>
+<header class="w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-3 sm:gap-4 group cursor-pointer">
+<h1 class="text-lg sm:text-xl font-bold tracking-tight">Home</h1>
+<button class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onclick="document.documentElement.classList.toggle('dark')" aria-label="Toggle dark mode">
+<span class="material-icons text-xl align-middle text-gray-600 dark:text-gray-300">dark_mode</span>
+</button>
+<span class="text-gray-300 dark:text-gray-600 font-light hidden sm:inline">|</span>
+</div>
+<nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 dark:text-gray-300">
+<a class="nav-link hover:text-black dark:hover:text-white transition-colors" href="/about">About Me</a>
+<a class="nav-link active text-black dark:text-white" href="/projects">Projects</a>
+<a class="nav-link hover:text-black dark:hover:text-white transition-colors" href="/articles">Articles</a>
+<a class="nav-link hover:text-black dark:hover:text-white transition-colors" href="/archives">Archives</a>
+<a class="nav-link hover:text-black dark:hover:text-white transition-colors" href="/categories">Categories</a>
+</nav>
+<button class="md:hidden p-2 text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 rounded" onclick="toggleMobileMenu()" aria-label="Toggle menu" aria-expanded="false" id="mobile-menu-button">
+<span class="material-icons" id="menu-icon">menu</span>
+</button>
+</div>
+<nav class="mobile-menu md:hidden mt-4" id="mobile-nav">
+<div class="flex flex-col gap-4 text-sm font-medium text-gray-600 dark:text-gray-300 border-t border-gray-200 dark:border-gray-800 pt-4">
+<a class="nav-link hover:text-black dark:hover:text-white transition-colors py-2" href="/about" onclick="closeMobileMenu()">About Me</a>
+<a class="nav-link active text-black dark:text-white py-2" href="/projects" onclick="closeMobileMenu()">Projects</a>
+<a class="nav-link hover:text-black dark:hover:text-white transition-colors py-2" href="/articles" onclick="closeMobileMenu()">Articles</a>
+<a class="nav-link hover:text-black dark:hover:text-white transition-colors py-2" href="/archives" onclick="closeMobileMenu()">Archives</a>
+<a class="nav-link hover:text-black dark:hover:text-white transition-colors py-2" href="/categories" onclick="closeMobileMenu()">Categories</a>
+</div>
+</nav>
+</header>
 
-<header class="header">
-    <nav class="nav">
-        <div class="logo">
-            <a href="//localhost:1313/" accesskey="h" title="Home (Alt + H)">Home</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-                <ul class="lang-switch"><li>|</li>
-                </ul>
+<main class="flex-grow w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-20">
+
+<section class="mb-12 sm:mb-20">
+<h1 class="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 sm:mb-8 leading-tight">
+    Things<br/>
+    <span class="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-800 dark:from-white dark:via-gray-200 dark:to-gray-400">I've Built</span>
+</h1>
+<p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed font-serif max-w-2xl">
+    A mix of research projects, tools, and experiments — mostly around machine learning, NLP, and systems programming.
+</p>
+</section>
+
+<section>
+<h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-6 sm:mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">All Projects</h3>
+<div class="space-y-8">
+    <div class="group relative pl-4 border-l-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2">
+            
+            <a href="https://huggingface.co/spaces/BeardedMonster/SabiYarn_125M" target="_blank" rel="noopener noreferrer" class="text-xl font-semibold text-gray-900 dark:text-white hover:underline">SabiYarn</a>
+            
+            <span class="text-sm font-mono text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">2025</span>
+        </div>
+        
+        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl font-serif mb-4">A 125M parameter decoder-only language model pretrained from scratch on 70B tokens across 11 Nigerian languages. Best performing model on these languages at AfricaNLP, ACL 2025.</p>
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex flex-wrap gap-2">
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Python</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">PyTorch</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">NLP</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">LLM</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Distributed Training</span>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1">
+                <a href="https://huggingface.co/spaces/BeardedMonster/SabiYarn_125M" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0">
+                    <span class="material-icons text-sm">open_in_new</span>Demo
+                </a>
+                <a href="https://aclanthology.org/2025.africanlp-1.14/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0">
+                    <span class="material-icons text-sm">article</span>Paper
+                </a>
             </div>
         </div>
-        <ul id="menu">
-            <li>
-                <a href="//localhost:1313/about" title="About Me">
-                    <span>About Me</span>
+    </div>
+    <div class="group relative pl-4 border-l-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2">
+            
+            <a href="https://www.aipplier.com/" target="_blank" rel="noopener noreferrer" class="text-xl font-semibold text-gray-900 dark:text-white hover:underline">AIpplier</a>
+            
+            <span class="text-sm font-mono text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">2024</span>
+        </div>
+        
+        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl font-serif mb-4">An LLM-based web automation agent that automates job applications on popular job boards, built with LangGraph, Playwright, and GPT-4o.</p>
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex flex-wrap gap-2">
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Python</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">LangGraph</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Playwright</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">GPT-4o</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Agents</span>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1">
+                <a href="https://www.aipplier.com/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0">
+                    <span class="material-icons text-sm">open_in_new</span>Demo
                 </a>
-            </li>
-            <li>
-                <a href="//localhost:1313/projects/" title="Projects">
-                    <span class="active">Projects</span>
+            </div>
+        </div>
+    </div>
+    <div class="group relative pl-4 border-l-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2">
+            
+            <a href="https://zeeno.vercel.app" target="_blank" rel="noopener noreferrer" class="text-xl font-semibold text-gray-900 dark:text-white hover:underline">Zeeno</a>
+            
+            <span class="text-sm font-mono text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">2024</span>
+        </div>
+        
+        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl font-serif mb-4">A semantic search-powered book recommendation service that lets you find books by describing topics or ideas you are thinking about in natural language.</p>
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex flex-wrap gap-2">
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Python</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">FastAPI</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Semantic Search</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Next.js</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Embeddings</span>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1">
+                <a href="https://github.com/damilojohn/zeno" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0">
+                    <span class="material-icons text-sm">code</span>GitHub
                 </a>
-            </li>
-            <li>
-                <a href="//localhost:1313/articles/" title="Articles">
-                    <span>Articles</span>
+                <a href="https://zeeno.vercel.app" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0">
+                    <span class="material-icons text-sm">open_in_new</span>Demo
                 </a>
-            </li>
-            <li>
-                <a href="//localhost:1313/archives/" title="Archives">
-                    <span>Archives</span>
+            </div>
+        </div>
+    </div>
+    <div class="group relative pl-4 border-l-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2">
+            
+            <a href="https://huggingface.co/damilojohn/text-descrambler" target="_blank" rel="noopener noreferrer" class="text-xl font-semibold text-gray-900 dark:text-white hover:underline">Text Descrambler</a>
+            
+            <span class="text-sm font-mono text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">2024</span>
+        </div>
+        
+        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl font-serif mb-4">A GPT-2 model fine-tuned to reconstruct grammatically correct sentences from randomly ordered word sequences — e.g. turning &#39;The expensive. show equations is computationally that&#39; back into coherent prose.</p>
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex flex-wrap gap-2">
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Python</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">PyTorch</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">GPT-2</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">NLP</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Fine-tuning</span>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1">
+                <a href="https://github.com/damilojohn/Text-Descrambling" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0">
+                    <span class="material-icons text-sm">code</span>GitHub
                 </a>
-            </li>
-            <li>
-                <a href="//localhost:1313/categories/" title="Categories">
-                    <span>Categories</span>
+                <a href="https://huggingface.co/damilojohn/text-descrambler" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0">
+                    <span class="material-icons text-sm">open_in_new</span>Demo
                 </a>
-            </li>
-        </ul>
-    </nav>
-</header>
-<main class="main"> 
-<header class="page-header"><div class="breadcrumbs"><a href="//localhost:1313/">Home</a></div>
-  <h1>
-    Projects
-  </h1>
-</header>
-
-<div class="grid-container">
-    <article class="post-entry"> 
-<figure class="entry-cover"><img loading="lazy" src="//localhost:1313/aipplier.png" alt="">
-</figure>
-      <header class="entry-header">
-        <h2>
-          <a href="//localhost:1313/projects/aipplier/"> AIpplier</a>
-        </h2>
-      </header>
-      <div class="entry-content">
-        <p>An LLM-Based Web Automation Agent for automating job applications on popular job boards.
-Built Using Langgraph, Playwright and GPT4-O.
-Try it out here</p>
-      </div>
-      <footer class="entry-footer">&lt;span title=&#39;2024-10-15 04:14:46 &#43;0100 WAT&#39;&gt;October 15, 2024&lt;/span&gt;&amp;nbsp;·&amp;nbsp;1 min&amp;nbsp;·&amp;nbsp;23 words&amp;nbsp;·&amp;nbsp;Damilola John</footer>
-    </article>
-    <article class="post-entry"> 
-<figure class="entry-cover"><img loading="lazy" src="//localhost:1313/zeeno.jpg" alt="Vanitas Still Life with a Candlestick, Musical Instruments, Dutch Books, a Writing Set, an Astrological and a Terrestial Globe and an Hourglass, All on a Draped Table by Evert Collier">
-</figure>
-      <header class="entry-header">
-        <h2>
-          <a href="//localhost:1313/projects/zeeno/">Zeeno - Find books by describing them. A personal librarian for discovering books</a>
-        </h2>
-      </header>
-      <div class="entry-content">
-        <p>Find books about topics/ideas in your head A recommendation service that let’s you find books about any topic or ideas you are thinking about by describing them in natural language.
-Github repo
-Link</p>
-      </div>
-      <footer class="entry-footer">&lt;span title=&#39;2024-09-15 04:14:46 &#43;0100 WAT&#39;&gt;September 15, 2024&lt;/span&gt;&amp;nbsp;·&amp;nbsp;1 min&amp;nbsp;·&amp;nbsp;33 words&amp;nbsp;·&amp;nbsp;Damilola John</footer>
-    </article>
-    <article class="post-entry"> 
-      <header class="entry-header">
-        <h2>
-          <a href="//localhost:1313/projects/traceroute/">TraceRoute</a>
-        </h2>
-      </header>
-      <div class="entry-content">
-        <p>Tracking a packet from source to destination. A tool for tracing the path followed by an internet packet across the internet implemented in python. Inspired by TraceRoute the Unix tool.
-github</p>
-      </div>
-      <footer class="entry-footer">&lt;span title=&#39;2024-08-15 04:14:46 &#43;0100 WAT&#39;&gt;August 15, 2024&lt;/span&gt;&amp;nbsp;·&amp;nbsp;1 min&amp;nbsp;·&amp;nbsp;31 words&amp;nbsp;·&amp;nbsp;Damilola John</footer>
-    </article>
-    <article class="post-entry"> 
-      <header class="entry-header">
-        <h2>
-          <a href="//localhost:1313/projects/sabiyarn/">SabiYarn: Training a Foundational Language Model on Nigerian Languages</a>
-        </h2>
-      </header>
-      <div class="entry-content">
-        <p>Training a 125M parameter decoder-only model on 70b tokens of Nigerian Languages. demo
-Article</p>
-      </div>
-      <footer class="entry-footer">&lt;span title=&#39;2024-03-15 04:14:46 &#43;0100 WAT&#39;&gt;March 15, 2024&lt;/span&gt;&amp;nbsp;·&amp;nbsp;1 min&amp;nbsp;·&amp;nbsp;14 words&amp;nbsp;·&amp;nbsp;Damilola John</footer>
-    </article>
-    <article class="post-entry"> 
-<figure class="entry-cover"><img loading="lazy" src="//localhost:1313/anagrams.jpg" alt="">
-</figure>
-      <header class="entry-header">
-        <h2>
-          <a href="//localhost:1313/projects/text_descrambler/">Descrambling Sentences with GPT2 </a>
-        </h2>
-      </header>
-      <div class="entry-content">
-        <p>Finetuning GPT2 to Reconstruct sentences Two words are anagrams if one can be formed by permuting the letters of the other. Applying the same logic to a sentence, would be saying that two sentences are anagrams(no such thing) if their component words can be permutated to form clones of each other.
-I thought it would be interesting to finetune a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn’t require intelligence and can be done with very trivial algorithms,you would be right, but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words....</p>
-      </div>
-      <footer class="entry-footer">&lt;span title=&#39;2024-01-10 04:14:46 &#43;0100 WAT&#39;&gt;January 10, 2024&lt;/span&gt;&amp;nbsp;·&amp;nbsp;1 min&amp;nbsp;·&amp;nbsp;153 words&amp;nbsp;·&amp;nbsp;Damilola John</footer>
-    </article>
+                <a href="https://damilojohn.github.io/articles/text-desrambler/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0">
+                    <span class="material-icons text-sm">article</span>Paper
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="group relative pl-4 border-l-2 border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition-all">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-2">
+            
+            <a href="https://github.com/damilojohn/traceroute" target="_blank" rel="noopener noreferrer" class="text-xl font-semibold text-gray-900 dark:text-white hover:underline">TraceRoute</a>
+            
+            <span class="text-sm font-mono text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">2024</span>
+        </div>
+        
+        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl font-serif mb-4">A Python implementation of the classic Unix traceroute utility, tracing the full path followed by an internet packet from source to destination across the network.</p>
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex flex-wrap gap-2">
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Python</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Networking</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">ICMP</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Sockets</span>
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1">
+                <a href="https://github.com/damilojohn/traceroute" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0">
+                    <span class="material-icons text-sm">code</span>GitHub
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
-    </main>
-    
-<footer class="footer">
-    <span>Copyright Damilola John © 2023</span>
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
+</section>
+
+</main>
+
+<footer class="w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 border-t border-gray-100 dark:border-gray-800 mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+<div class="text-center md:text-left">
+    © 2025 Damilola John. All rights reserved.
+</div>
+<div class="flex gap-4 sm:gap-6">
+<a class="hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0 flex items-center" href="#" aria-label="Twitter">Twitter</a>
+<a class="hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0 flex items-center" href="#" aria-label="GitHub">GitHub</a>
+<a class="hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0 flex items-center" href="#" aria-label="LinkedIn">LinkedIn</a>
+</div>
+</div>
 </footer>
-<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
-        <path d="M12 6H0l6-6z" />
-    </svg>
-</a>
 
 <script>
-    let menu = document.getElementById('menu')
-    if (menu) {
-        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
-        menu.onscroll = function () {
-            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
-        }
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-nav');
+        const button = document.getElementById('mobile-menu-button');
+        const icon = document.getElementById('menu-icon');
+        menu.classList.toggle('open');
+        const isOpen = menu.classList.contains('open');
+        button.setAttribute('aria-expanded', isOpen);
+        icon.textContent = isOpen ? 'close' : 'menu';
     }
 
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            var id = this.getAttribute("href").substr(1);
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
-                    behavior: "smooth"
-                });
-            } else {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
-            }
-            if (id === "top") {
-                history.replaceState(null, null, " ");
-            } else {
-                history.pushState(null, null, `#${id}`);
-            }
-        });
+    function closeMobileMenu() {
+        const menu = document.getElementById('mobile-nav');
+        const button = document.getElementById('mobile-menu-button');
+        const icon = document.getElementById('menu-icon');
+        menu.classList.remove('open');
+        button.setAttribute('aria-expanded', 'false');
+        icon.textContent = 'menu';
+    }
+
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('mobile-nav');
+        const button = document.getElementById('mobile-menu-button');
+        if (menu && button && !menu.contains(event.target) && !button.contains(event.target)) {
+            closeMobileMenu();
+        }
     });
 
-</script>
-<script>
-    var mybutton = document.getElementById("top-link");
-    window.onscroll = function () {
-        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
-            mybutton.style.visibility = "visible";
-            mybutton.style.opacity = "1";
-        } else {
-            mybutton.style.visibility = "hidden";
-            mybutton.style.opacity = "0";
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 768) {
+            closeMobileMenu();
         }
-    };
-
+    });
 </script>
-<script>
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-        if (document.body.className.includes("dark")) {
-            document.body.classList.remove('dark');
-            localStorage.setItem("pref-theme", 'light');
-        } else {
-            document.body.classList.add('dark');
-            localStorage.setItem("pref-theme", 'dark');
-        }
-    })
-
-</script>
-</body>
-
-</html>
+</body></html>

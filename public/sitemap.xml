@@ -2,6 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>//localhost:1313/projects/sabiyarn/</loc>
+    <lastmod>2025-05-01T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/projects/aipplier/</loc>
+    <lastmod>2024-10-15T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/projects/zeeno/</loc>
+    <lastmod>2024-09-15T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/projects/text_descrambler/</loc>
+    <lastmod>2024-01-10T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/projects/traceroute/</loc>
+    <lastmod>2024-08-15T04:14:46+01:00</lastmod>
+  </url><url>
     <loc>//localhost:1313/articles/</loc>
     <lastmod>2026-01-16T08:25:46+01:00</lastmod>
   </url><url>
@@ -29,6 +44,24 @@
     <loc>//localhost:1313/tags/transformers/</loc>
     <lastmod>2026-01-16T08:25:46+01:00</lastmod>
   </url><url>
+    <loc>//localhost:1313/tags/distributed-training/</loc>
+    <lastmod>2025-05-01T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/llm/</loc>
+    <lastmod>2025-05-01T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/nlp/</loc>
+    <lastmod>2025-05-01T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/projects/</loc>
+    <lastmod>2025-05-01T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/python/</loc>
+    <lastmod>2025-05-01T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/pytorch/</loc>
+    <lastmod>2025-05-01T04:14:46+01:00</lastmod>
+  </url><url>
     <loc>//localhost:1313/tags/async/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
@@ -39,9 +72,6 @@
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/natural-language-processing/</loc>
-    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/python/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/categories/python/</loc>
@@ -56,58 +86,46 @@
     <loc>//localhost:1313/articles/threadpools/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/projects/aipplier/</loc>
-    <lastmod>2024-10-15T04:14:46+01:00</lastmod>
-  </url><url>
     <loc>//localhost:1313/tags/agents/</loc>
     <lastmod>2024-10-15T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/categories/agents/</loc>
+    <loc>//localhost:1313/tags/gpt-4o/</loc>
     <lastmod>2024-10-15T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/tags/ai/</loc>
+    <loc>//localhost:1313/tags/langgraph/</loc>
     <lastmod>2024-10-15T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/categories/ai/</loc>
+    <loc>//localhost:1313/tags/playwright/</loc>
     <lastmod>2024-10-15T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/projects/</loc>
-    <lastmod>2024-10-15T04:14:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/ci/cd/</loc>
+    <loc>//localhost:1313/tags/embeddings/</loc>
     <lastmod>2024-09-15T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/tags/cloud/</loc>
+    <loc>//localhost:1313/tags/fastapi/</loc>
     <lastmod>2024-09-15T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/categories/cloud/</loc>
-    <lastmod>2024-09-15T04:14:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/nlp/</loc>
-    <lastmod>2024-09-15T04:14:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/categories/recsys/</loc>
+    <loc>//localhost:1313/tags/next.js/</loc>
     <lastmod>2024-09-15T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/semantic-search/</loc>
     <lastmod>2024-09-15T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/categories/semantic-search/</loc>
-    <lastmod>2024-09-15T04:14:46+01:00</lastmod>
+    <loc>//localhost:1313/tags/icmp/</loc>
+    <lastmod>2024-08-15T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/projects/zeeno/</loc>
-    <lastmod>2024-09-15T04:14:46+01:00</lastmod>
+    <loc>//localhost:1313/tags/networking/</loc>
+    <lastmod>2024-08-15T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/projects/traceroute/</loc>
+    <loc>//localhost:1313/tags/sockets/</loc>
     <lastmod>2024-08-15T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/articles/text-desrambler/</loc>
     <lastmod>2024-06-15T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/projects/sabiyarn/</loc>
-    <lastmod>2024-03-15T04:14:46+01:00</lastmod>
+    <loc>//localhost:1313/tags/fine-tuning/</loc>
+    <lastmod>2024-01-10T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/projects/text_descrambler/</loc>
+    <loc>//localhost:1313/tags/gpt-2/</loc>
     <lastmod>2024-01-10T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/articles/language_classification/</loc>

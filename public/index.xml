@@ -9,6 +9,51 @@
     <copyright>Copyright Damilola John &amp;copy; 2023</copyright>
     <lastBuildDate>Fri, 16 Jan 2026 08:25:46 +0100</lastBuildDate><atom:link href="//localhost:1313/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>SabiYarn</title>
+      <link>//localhost:1313/projects/sabiyarn/</link>
+      <pubDate>Thu, 01 May 2025 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/projects/sabiyarn/</guid>
+      <description>A 125M parameter decoder-only language model pretrained from scratch on 70B tokens across 11 Nigerian languages. Best performing model on these languages at AfricaNLP, ACL 2025.</description>
+    </item>
+    
+    <item>
+      <title>AIpplier</title>
+      <link>//localhost:1313/projects/aipplier/</link>
+      <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/projects/aipplier/</guid>
+      <description>An LLM-based web automation agent that automates job applications on popular job boards, built with LangGraph, Playwright, and GPT-4o.</description>
+    </item>
+    
+    <item>
+      <title>Zeeno</title>
+      <link>//localhost:1313/projects/zeeno/</link>
+      <pubDate>Sun, 15 Sep 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/projects/zeeno/</guid>
+      <description>A semantic search-powered book recommendation service that lets you find books by describing topics or ideas you are thinking about in natural language.</description>
+    </item>
+    
+    <item>
+      <title>Text Descrambler</title>
+      <link>//localhost:1313/projects/text_descrambler/</link>
+      <pubDate>Wed, 10 Jan 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/projects/text_descrambler/</guid>
+      <description>A GPT-2 model fine-tuned to reconstruct grammatically correct sentences from randomly ordered word sequences — e.g. turning &amp;#39;The expensive. show equations is computationally that&amp;#39; back into coherent prose.</description>
+    </item>
+    
+    <item>
+      <title>TraceRoute</title>
+      <link>//localhost:1313/projects/traceroute/</link>
+      <pubDate>Thu, 15 Aug 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/projects/traceroute/</guid>
+      <description>A Python implementation of the classic Unix traceroute utility, tracing the full path followed by an internet packet from source to destination across the network.</description>
+    </item>
+    
+    <item>
       <title>Cut Cross Entropy: 20x Memory reduction in LLM training through optimized cross entropy kernels</title>
       <link>//localhost:1313/articles/cut-cross-entropy/</link>
       <pubDate>Fri, 16 Jan 2026 08:25:46 +0100</pubDate>
@@ -38,38 +83,6 @@ The key innovation of transformers lies in the self-attention mechanism, which a
     </item>
     
     <item>
-      <title> AIpplier</title>
-      <link>//localhost:1313/projects/aipplier/</link>
-      <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
-      
-      <guid>//localhost:1313/projects/aipplier/</guid>
-      <description>An LLM-Based Web Automation Agent for automating job applications on popular job boards.
-Built Using Langgraph, Playwright and GPT4-O.
-Try it out here</description>
-    </item>
-    
-    <item>
-      <title>Zeeno - Find books by describing them. A personal librarian for discovering books</title>
-      <link>//localhost:1313/projects/zeeno/</link>
-      <pubDate>Sun, 15 Sep 2024 04:14:46 +0100</pubDate>
-      
-      <guid>//localhost:1313/projects/zeeno/</guid>
-      <description>Find books about topics/ideas in your head A recommendation service that let&amp;rsquo;s you find books about any topic or ideas you are thinking about by describing them in natural language.
-Github repo
-Link</description>
-    </item>
-    
-    <item>
-      <title>TraceRoute</title>
-      <link>//localhost:1313/projects/traceroute/</link>
-      <pubDate>Thu, 15 Aug 2024 04:14:46 +0100</pubDate>
-      
-      <guid>//localhost:1313/projects/traceroute/</guid>
-      <description>Tracking a packet from source to destination. A tool for tracing the path followed by an internet packet across the internet implemented in python. Inspired by TraceRoute the Unix tool.
-github</description>
-    </item>
-    
-    <item>
       <title>Finetuning GPT2 to Reconstruct Sentences</title>
       <link>//localhost:1313/articles/text-desrambler/</link>
       <pubDate>Sat, 15 Jun 2024 04:14:46 +0100</pubDate>
@@ -77,26 +90,6 @@ github</description>
       <guid>//localhost:1313/articles/text-desrambler/</guid>
       <description>Two words are anagrams if one can be formed by permuting the letters of the other. Applying the same logic to a sentence, would be saying that two sentences are anagrams(no such thing) if their component words can be permutated to form clones of each other.
 I thought it would be interesting to teach a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn&amp;rsquo;t require intelligence and can be done with very trivial algorithms,you would be right, but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words.</description>
-    </item>
-    
-    <item>
-      <title>SabiYarn: Training a Foundational Language Model on Nigerian Languages</title>
-      <link>//localhost:1313/projects/sabiyarn/</link>
-      <pubDate>Fri, 15 Mar 2024 04:14:46 +0100</pubDate>
-      
-      <guid>//localhost:1313/projects/sabiyarn/</guid>
-      <description>Training a 125M parameter decoder-only model on 70b tokens of Nigerian Languages. demo
-Article</description>
-    </item>
-    
-    <item>
-      <title>Descrambling Sentences with GPT2 </title>
-      <link>//localhost:1313/projects/text_descrambler/</link>
-      <pubDate>Wed, 10 Jan 2024 04:14:46 +0100</pubDate>
-      
-      <guid>//localhost:1313/projects/text_descrambler/</guid>
-      <description>Finetuning GPT2 to Reconstruct sentences Two words are anagrams if one can be formed by permuting the letters of the other. Applying the same logic to a sentence, would be saying that two sentences are anagrams(no such thing) if their component words can be permutated to form clones of each other.
-I thought it would be interesting to finetune a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn&amp;rsquo;t require intelligence and can be done with very trivial algorithms,you would be right, but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words.</description>
     </item>
     
     <item>
