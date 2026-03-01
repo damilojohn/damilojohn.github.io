@@ -34,6 +34,10 @@ The CI/CD pipeline (`.github/workflows/hugo.yml`) uses Hugo Extended v0.148.0 an
 │   ├── _default/
 │   │   ├── staticpage.html # Layout for about/static pages
 │   │   └── archives.html   # Custom archives layout
+│   ├── articles/
+│   │   └── list.html       # Articles list page (rectangular card tiles)
+│   ├── projects/
+│   │   └── list.html       # Projects list page (left-border hover tiles)
 │   └── partials/
 │       └── extend_head.html # Injects custom CSS/JS into <head>
 ├── static/
@@ -64,6 +68,36 @@ tags: ['Tag1', 'Tag2']
 Categories: ['Category']
 ---
 ```
+
+Standard front matter for projects:
+
+```yaml
+---
+title: "Project Name"
+date: 2026-01-01T00:00:00+01:00
+draft: false
+description: "One or two sentence blurb shown on the projects list page."
+tags: ['Python', 'Rust']   # tech stack chips shown on the tile
+github: "https://github.com/..."   # optional
+demo: "https://..."                # optional — used as the title's primary link
+article: "https://..."             # optional
+weight: 1                          # controls display order (lower = first)
+---
+```
+
+**Draft behaviour**: Both `layouts/articles/list.html` and `layouts/projects/list.html` explicitly filter `Draft: false` at the template level, so drafts are hidden even when running `hugo server -D`.
+
+**Projects tile link priority**: `demo` → `github` → `article` (first available becomes the title link).
+
+## Design System
+
+The about, projects, and articles list pages share a consistent design implemented as standalone HTML templates (not extending PaperMod's baseof). They all use:
+
+- **Tailwind CSS** (CDN), **Inter** (sans), **Merriweather** (serif), **Material Icons**
+- Zinc/gray palette with dark mode via `document.documentElement.classList.toggle('dark')`
+- Identical header (hamburger mobile nav) and footer across all three pages
+
+When adding a new top-level section page, copy the header/footer/script block from `layouts/projects/list.html` as a starting point.
 
 ## Customization Points
 
