@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>What do you do when majority of your Coroutines are blocking? | Home</title>
+<title>Handling Blocking Coroutines effectively in Asyncio | Home</title>
 <meta name="keywords" content="Async, Python, Coroutines">
 <meta name="description" content="Introduction I recently had to implement a feature at work that basically sent a ton of emails, with custom attachments to a ton of buyers across the world. Since we had a broker, for placing mails on a queue that were picked and sent by workers, how architecture was already primed for asynchronous communication. However, on the client side, placing these emails asynchronously wasn&rsquo;t as simple. The main path between creating the mail and actually placing it on the service bus (broker), consisted mainly of blocking, CPU heavy tasks ; reading excel files, adding user information, serializing excel files to an in-memory buffer, base64 encoding these bytes and decoding them to strings, before finally creating the message json and sending it to the queue (this is non blocking).">
 <meta name="author" content="Damilola John">
@@ -126,7 +126,7 @@
   <header class="post-header">
     <div class="breadcrumbs"><a href="//localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="//localhost:1313/articles/">Articles</a></div>
     <h1 class="post-title">
-      What do you do when majority of your Coroutines are blocking?
+      Handling Blocking Coroutines effectively in Asyncio
     </h1>
     <div class="post-meta">&lt;span title=&#39;2024-12-11 04:14:46 &#43;0100 WAT&#39;&gt;December 11, 2024&lt;/span&gt;&amp;nbsp;·&amp;nbsp;1 min&amp;nbsp;·&amp;nbsp;163 words&amp;nbsp;·&amp;nbsp;Damilola John
 
@@ -163,15 +163,15 @@ Since we had a broker, for placing mails on a queue that were picked and sent by
       <li><a href="//localhost:1313/tags/coroutines/">Coroutines</a></li>
     </ul>
 <nav class="paginav">
-  <a class="prev" href="//localhost:1313/articles/diff_attention/">
+  <a class="prev" href="//localhost:1313/articles/cut-cross-entropy/">
     <span class="title">« Prev</span>
     <br>
-    <span>Understanding Differential Attention.</span>
+    <span>Cut Cross Entropy: 20x Memory reduction in LLM Pre-training through optimized cross entropy kernels</span>
   </a>
-  <a class="next" href="//localhost:1313/articles/text-desrambler/">
+  <a class="next" href="//localhost:1313/articles/diff_attention/">
     <span class="title">Next »</span>
     <br>
-    <span>Finetuning GPT2 to Reconstruct Sentences</span>
+    <span>Understanding Differential Attention.</span>
   </a>
 </nav>
 

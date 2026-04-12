@@ -101,12 +101,8 @@
 
 <section class="mb-12 sm:mb-20">
 <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 sm:mb-8 leading-tight">
-    Writing<br/>
-    <span class="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-700 to-gray-800 dark:from-white dark:via-gray-200 dark:to-gray-400">on ML &amp; Systems</span>
+    Writings<br/>
 </h1>
-<p class="text-base sm:text-lg text-gray-600 dark:text-gray-300 leading-relaxed font-serif max-w-2xl">
-    Deep-dives into machine learning, NLP, distributed systems, and research papers — written to be understood, not just referenced.
-</p>
 </section>
 
 <section>
@@ -114,17 +110,37 @@
 <div class="space-y-4">
     <a href="//localhost:1313/articles/cut-cross-entropy/" class="group block border border-gray-100 dark:border-gray-800 rounded-lg p-5 sm:p-6 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1 mb-3">
-            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white leading-snug group-hover:underline">Cut Cross Entropy: 20x Memory reduction in LLM training through optimized cross entropy kernels</h2>
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white leading-snug group-hover:underline">Cut Cross Entropy: 20x Memory reduction in LLM Pre-training through optimized cross entropy kernels</h2>
             <span class="text-xs font-mono text-gray-400 dark:text-gray-500 shrink-0 sm:ml-4">Jan 2026</span>
         </div>
         
-        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-serif mb-4">Introduction 2024 saw the first 100m$+ training runs, while the insane compute requirements of training Large Language Models is no secret, this jump brought more attention to the...</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-serif mb-4">Introduction 2024 saw the first 100m$+ training runs, while the insane compute requirements for training Large Language Models isn&amp;rsquo;t a secret,the
+The biggest / most...</p>
         
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div class="flex flex-wrap gap-2">
                 <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Transformers</span>
                 <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Deep Learning</span>
                 <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">LLMs</span>
+            </div>
+            <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors shrink-0">
+                Read <span class="material-icons text-sm">arrow_forward</span>
+            </span>
+        </div>
+    </a>
+    <a href="//localhost:1313/articles/threadpools/" class="group block border border-gray-100 dark:border-gray-800 rounded-lg p-5 sm:p-6 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1 mb-3">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white leading-snug group-hover:underline">Handling Blocking Coroutines effectively in Asyncio</h2>
+            <span class="text-xs font-mono text-gray-400 dark:text-gray-500 shrink-0 sm:ml-4">Dec 2024</span>
+        </div>
+        
+        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-serif mb-4">Introduction I recently had to implement a feature at work that basically sent a ton of emails, with custom attachments to a ton of buyers across the world. Since we had a broker,...</p>
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex flex-wrap gap-2">
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Async</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Python</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Coroutines</span>
             </div>
             <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors shrink-0">
                 Read <span class="material-icons text-sm">arrow_forward</span>
@@ -143,25 +159,6 @@
             <div class="flex flex-wrap gap-2">
                 <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Natural Language Processing</span>
                 <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Transformers</span>
-            </div>
-            <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors shrink-0">
-                Read <span class="material-icons text-sm">arrow_forward</span>
-            </span>
-        </div>
-    </a>
-    <a href="//localhost:1313/articles/threadpools/" class="group block border border-gray-100 dark:border-gray-800 rounded-lg p-5 sm:p-6 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all">
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1 mb-3">
-            <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white leading-snug group-hover:underline">What do you do when majority of your Coroutines are blocking?</h2>
-            <span class="text-xs font-mono text-gray-400 dark:text-gray-500 shrink-0 sm:ml-4">Dec 2024</span>
-        </div>
-        
-        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-serif mb-4">Introduction I recently had to implement a feature at work that basically sent a ton of emails, with custom attachments to a ton of buyers across the world. Since we had a broker,...</p>
-        
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div class="flex flex-wrap gap-2">
-                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Async</span>
-                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Python</span>
-                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">Coroutines</span>
             </div>
             <span class="inline-flex items-center gap-1 text-xs font-medium text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors shrink-0">
                 Read <span class="material-icons text-sm">arrow_forward</span>

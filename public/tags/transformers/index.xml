@@ -9,13 +9,13 @@
     <copyright>Copyright Damilola John &amp;copy; 2023</copyright>
     <lastBuildDate>Fri, 16 Jan 2026 08:25:46 +0100</lastBuildDate><atom:link href="//localhost:1313/tags/transformers/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Cut Cross Entropy: 20x Memory reduction in LLM training through optimized cross entropy kernels</title>
+      <title>Cut Cross Entropy: 20x Memory reduction in LLM Pre-training through optimized cross entropy kernels</title>
       <link>//localhost:1313/articles/cut-cross-entropy/</link>
       <pubDate>Fri, 16 Jan 2026 08:25:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/cut-cross-entropy/</guid>
-      <description>Introduction 2024 saw the first 100m$+ training runs, while the insane compute requirements of training Large Language Models is no secret, this jump brought more attention to the need to find tricks and methods to optimize both the transformers architecture and the training process (infrastructure).
-The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM.</description>
+      <description>Introduction 2024 saw the first 100m$+ training runs, while the insane compute requirements for training Large Language Models isn&amp;rsquo;t a secret,the
+The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM. (Essentially the idea here is that we tried to optimize self attention by modifying how the operation is performed on the GPU.</description>
     </item>
     
     <item>

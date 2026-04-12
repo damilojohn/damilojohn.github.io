@@ -5,10 +5,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="noindex, nofollow">
-<title>Cut Cross Entropy: 20x Memory reduction in LLM training through optimized cross entropy kernels | Home</title>
+<title>Cut Cross Entropy: 20x Memory reduction in LLM Pre-training through optimized cross entropy kernels | Home</title>
 <meta name="keywords" content="Transformers, Deep Learning, LLMs">
-<meta name="description" content="Introduction 2024 saw the first 100m$&#43; training runs, while the insane compute requirements of training Large Language Models is no secret, this jump brought more attention to the need to find tricks and methods to optimize both the transformers architecture and the training process (infrastructure).
-The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM.">
+<meta name="description" content="Introduction 2024 saw the first 100m$&#43; training runs, while the insane compute requirements for training Large Language Models isn&rsquo;t a secret,the
+The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM. (Essentially the idea here is that we tried to optimize self attention by modifying how the operation is performed on the GPU.">
 <meta name="author" content="Damilola John">
 <link rel="canonical" href="//localhost:1313/articles/cut-cross-entropy/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.51ae2dfd23423d479cfd90ba4215aeebadfd8c0833c61a978bfbc8648cc56365.css" integrity="sha256-Ua4t/SNCPUec/ZC6QhWu6639jAgzxhqXi/vIZIzFY2U=" rel="preload stylesheet" as="style">
@@ -127,9 +127,9 @@ The biggest / most successful of these optimizations in recent times has been fl
   <header class="post-header">
     <div class="breadcrumbs"><a href="//localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="//localhost:1313/articles/">Articles</a></div>
     <h1 class="post-title">
-      Cut Cross Entropy: 20x Memory reduction in LLM training through optimized cross entropy kernels
+      Cut Cross Entropy: 20x Memory reduction in LLM Pre-training through optimized cross entropy kernels
     </h1>
-    <div class="post-meta">&lt;span title=&#39;2026-01-16 08:25:46 &#43;0100 WAT&#39;&gt;January 16, 2026&lt;/span&gt;&amp;nbsp;·&amp;nbsp;10 min&amp;nbsp;·&amp;nbsp;2014 words&amp;nbsp;·&amp;nbsp;Damilola John
+    <div class="post-meta">&lt;span title=&#39;2026-01-16 08:25:46 &#43;0100 WAT&#39;&gt;January 16, 2026&lt;/span&gt;&amp;nbsp;·&amp;nbsp;10 min&amp;nbsp;·&amp;nbsp;2003 words&amp;nbsp;·&amp;nbsp;Damilola John
 
 </div>
   </header> 
@@ -169,21 +169,22 @@ The biggest / most successful of these optimizations in recent times has been fl
 </div>
 
   <div class="post-content"><h1 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h1>
-<p>2024 saw the first 100m$+ training runs, while the insane compute requirements of training Large Language Models is no secret, this jump brought more attention to the need to find tricks and methods to optimize both the transformers architecture and the training process (infrastructure).</p>
+<p>2024 saw the first 100m$+ training runs, while the insane compute requirements for training Large Language Models isn&rsquo;t a secret,the</p>
 <p>The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM. (Essentially the idea here is that we tried to optimize self attention by modifying how the operation is performed on the GPU.). The trend of squeezing out performance as much as possible from the training infrastructure continued, with researchers writing their own optimal cuda kernels. Deepseek took this a step further, writing their own distributed file system (Fire Flyer FileSystem), a new attention mechanism (MultiHead Latent Attention with custom kernels), a highly tuned communication library for mixture-of-experts models (Deep-EP), and Deep Gemm, an FP-8 optimized matrix multiplication kernel library.</p>
 <p>However, looking beyond the model itself, the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes.</p>
 <h2 id="a-bit-on-cross-entropy">A bit on Cross Entropy<a hidden class="anchor" aria-hidden="true" href="#a-bit-on-cross-entropy">#</a></h2>
 <p>Cross Entropy originates from information theory, and is a function that measures the difference between two probability distributions. In Machine Learning, the Cross Entropy Loss function is used in calculating the loss between the model&rsquo;s predicted probabilities and the dataset&rsquo;s true value.</p>
 <h1 id="llm-training">LLM Training<a hidden class="anchor" aria-hidden="true" href="#llm-training">#</a></h1>
-<p>Large language models are trained by autoregressively predicting the next token in a corpus, this corpus could vary from the entire internet, scientific texts and literature, textbooks etc in large scale pretraining, to smaller datasets on specific niches or domains(as in finetuning).</p>
+<p>Large language models are trained by autoregressively predicting the next token in a corpus, this corpus could vary from the entire internet, scientific texts and literature, textbooks etc in large scale pretraining, to smaller datasets on specific niches or domains as in model fine-tuning.</p>
 <p>Given a sequence with N-1 tokens, a large language model can be defined as :</p>
 \[
 P(x) = \prod_{i=1}^{N} P(x_i | x_1 \ldots x_{i-1})
 \]
-<p>Thus, we could say a large language model parameterizes a probability distribution over all possible tokens in it&rsquo;s vocabulary. this probability distribution is used to decide the next token in the sequence.</p>
-<p>This probability distribution is encoded in the  model&rsquo;s weights (Transformer Architecture), consisting of a backbone network (transformer layers) and a final classifier output layer (a simple neural network with an intermediate layer).
-(Image of the GPT Architecture)</p>
-<p>The output of the backbone network is popularly referred to as an embedding vector. These embeddings are the model&rsquo;s representation of a token, generated by multiple self-attention layers where the model encodes contextual information into each token&rsquo;s embeddings.</p>
+<p>That is, a large language model parameterizes a probability distribution over all possible tokens in it&rsquo;s vocabulary. This probability distribution is used to predict the next token in a sequence.</p>
+<p>The probability distribution is encoded as weights in the model&rsquo;s architecture, consisting of a backbone network (transformer layers) and a final classifier layer.</p>
+<p><a href="https://www.scaler.com/topics/nlp/gpt-versions/"><img loading="lazy" src="/gpt_architecture.webp" alt="GPT Architecture"  />
+</a></p>
+<p>The output of the backbone network is often referred to as an embedding vector. These embeddings are the model&rsquo;s representation of a token, generated by multiple self-attention layers where the model encodes contextual information from the sequence into each token&rsquo;s embeddings.</p>
 \[
 E = f(x1 . . . xi−1)
 \]
@@ -193,12 +194,12 @@ where
 \[
 f(x_1 \ldots x_{i-1})
 \]
-<p>signifies the backbone network (Transformer layers)</p>
+<p>signifies the backbone network, the transformer architecture shown above.</p>
 <p>These embeddings are then fed as inputs to the classifier layer C⊤ to produce unnormalized Log Probabilities (Logits)</p>
 \[
 logits = C^\top f(x_1 \ldots x_{i-1})
 \]
-<p>These logits are then converted to a probability distribution over all the tokens in the model&rsquo;s vocabulary (V), using the softmax activation function and taken as the model&rsquo;s prediction for the next token.</p>
+<p>These logits are then converted to a probability distribution over all the tokens in the model&rsquo;s vocabulary (V), using the softmax function and the result taken as the model&rsquo;s prediction for the next token.</p>
 \[
 \text{softmax}_k(\mathbf{v}) = \frac{\exp(v_k)}{\sum_j \exp(v_j)}
 \]
@@ -211,12 +212,12 @@ P(x_i | x_1 \ldots x_{i-1}) = \text{softmax}_{x_i}(C^\top f(x_1 \ldots x_{i-1}))
 \]
 <p>Like with every other classification problem in machine learning, we take the class with the highest predicted probability as the model&rsquo;s prediction, in our case, the model&rsquo;s predicted next token in the sequence, which could be anything from a simple &ldquo;.&rdquo; to the answer to the question of God, the Universe and life.</p>
 <p>This process is autoregressive, with the predicted token appended to the model&rsquo;s next input sequence to predict the next token, and so on, looping through the entire training corpus.</p>
-<p>Training a Language model, is like training any other deep learning based classifier in this sense, the model makes a prediction (next word), a loss (Cross Entropy) is computed by using the model&rsquo;s predicted probabilities and the true value(the actual next token in the sequence), this loss is used to compute gradients that are backpropagated through the model to adjust it&rsquo;s weight, repeatedly till a desired loss value is achieved or a desired number of training tokens are exhausted.</p>
-<p>During training, the langauge model aims to minimize the cross entropy loss or maximize the probability of predicting the right token</p>
+<p>Training a Language model, is like training any other deep learning based classifier in this sense, the model makes a prediction (next word), a loss (Cross Entropy) is computed by using the model&rsquo;s predicted probabilities and the true value(the actual next token in the sequence), this loss is used to compute gradients that are backpropagated through the model to adjust it&rsquo;s weight, repeatedly till a desired loss value is achieved or a desired number of training tokens have been exhausted.</p>
+<p>During training, a langauge model aims to minimize its cross entropy loss or maximize the probability of predicting the right token</p>
 \[
 \ell(\hat{x}) = \sum_{i=1}^{N} \log P(\hat{x}_i|\hat{x}_1, \ldots, \hat{x}_{i-1})
 \]
-<p>Given a training batch with batch size 8, containing sequences of length 2048 (GPT 5.2 is rumoured to have around 400k),</p>
+<p>Given a training batch with batch size 8, containing sequences of length 2048</p>
 <p>we have our input tensor x with shape:
 [8, 2048].</p>
 <p>Thus our model takes 8 sequence with 2048 tokens each as input.</p>
@@ -236,7 +237,7 @@ Essentially every token in the batch gets an embedding vector computed.</p>
 B, S, V
 \]
 <p>where V = Vocabulary Size</p>
-<p>Thus for every token, we predict the log probabilities for every token in the model&rsquo;s vocab. This is also done in parrallel.</p>
+<p>Thus for every token, we predict the log probabilities for every token in the model&rsquo;s vocab. This is also done in parallel.</p>
 <p>As mentioned earlier, the Logits are then used to generate the probability distribution, used in computing the cross entropy loss.</p>
 <h2 id="the-memory-problem">The Memory Problem<a hidden class="anchor" aria-hidden="true" href="#the-memory-problem">#</a></h2>
 <p>At inference, sampling from the model&rsquo;s predicted probabilities is efficient for any token as it is independent of the sequence length, since the model produces one token at a time at each step using the hidden state E of the last token in the sequence.</p>
@@ -251,31 +252,31 @@ f(x1), f(x1, x2), . . . , f(x1, . . . , xN)
 \]
 <p>
 are also computed in parallel. However, extra memory is required for saving the activation outputs of each layer and optimizer states for computing the gradients for the backward pass, together with the model&rsquo;s weight.</p>
-<p>Researchers over the years have come up with different optimization techniques like activation checkpointing, Gradient Accumulation etc, to help optimize memory consumption during training.</p>
-<p>However, despite optimizing the memory consumption of gradients, activations and optimizer states, the unsuspecting final layer (computing the cross entropy loss) occupies most of the model&rsquo;s memory footprint at training time.</p>
-<p>The Cut Cross Entropy team at Apple, noted in their paper that for Large Vocabulary models (See why Large Vocabularies are better), the log probabilites materialized for computing the cross entropy accounts for 40% to 90% (smaller models with larger vocabularies) of the memory consumption at training. With LLMs, larger vocabularies mean better text compression, and subsequently less compute during inference, the models also have a implicit representation for more tokens.</p>
+<p>Researchers over the years have come up with different optimization techniques like activation checkpointing, Gradient Accumulation etc, to help optimize memory consumption during training, and these are outside the scope of our interests here.</p>
+<p>However, despite optimizing the memory consumption of gradients, activations and optimizer states, the unsuspecting final layer (computing the cross entropy loss) occupies a significant chunk of the model&rsquo;s memory footprint during training.</p>
+<p>In the Cut Cross entropy paper, the authors noted that in Large Vocabulary models (See why Large Vocabularies are better), the log probabilites materialized for computing the cross entropy accounts for 40% to 90% (in smaller models with large vocabularies) of the memory consumption at training.This poses a problem since larger vocabularies mean better text compression, and subsequently less compute during inference. This also makes them suitable for multilingual models and low-resource-language applications.</p>
 <p>To Understand why the cross entropy layer hogs so much memory during training, let&rsquo;s look closely at how the cross entropy loss is computed.</p>
 <p>The cross entropy loss is given as:</p>
 \[
-\ell_i(x) = \log \text{softmax}_{x_i}(C^\top E_i)
+\ell_i(x) = - \log(\text{softmax}_{x_i}(C^\top E_i))
 \]
-<p>C⊤ and E maintain their values as the Classifier and Embedding matrices.</p>
+<p>C⊤ and E maintain their notation as the Classifier and Embedding matrices.</p>
 <p>we know the softmax function to be:</p>
 \[
 \frac{\exp(C^\top_{x_i} E_i)}{\sum_j \exp(C^\top_j E_i)}
 \]
 <p>thus, the cross entropy loss can be written as:</p>
 \[
-\ell_i(x) = \log \frac{\exp(C^\top_{x_i} E_i)}{\sum_j \exp(C^\top_j E_i)}
+\ell_i(x) = - \log \frac{\exp(C^\top_{x_i} E_i)}{\sum_j \exp(C^\top_j E_i)}
 \]
 <p>taking the log of the numerator and denominator gives:</p>
 \[
-\ell_i(x)= \log \exp(C^\top_{x_i} E_i) - \log \sum_j \exp(C^\top_j E_i)
+\ell_i(x)= - \log \exp(C^\top_{x_i} E_i) + \log \sum_j \exp(C^\top_j E_i)
 \]
 <p>which finally reduces to
 </p>
 \[
-\ell_i(x) = C^\top_{x_i} E_i - \log \sum_j \exp(C^\top_j E_i)
+\ell_i(x) = - C^\top_{x_i} E_i + \log \sum_j \exp(C^\top_j E_i)
 \]
 <p>Using Gemma 2(8b), with a vocabulary size of 250,000 as an example:</p>
 <p>To compute the cross entropy loss,</p>
@@ -283,8 +284,8 @@ are also computed in parallel. However, extra memory is required for saving the 
 \[
 C^\top_{x_i} E_i
 \]
-<p>This is a simple dot product between the column vector $C^\top_{x_i}$which corresponds to the classifier weights for the target class $x_i$ and the Embedding vector $E_I$</p>
-<p>To compute the second part of the equation, the  Log Sum Exp, we must first compute a bunch of intermediary tensors. To compute the Log Sum Exp,
+<p>This is a simple dot product between the column vector $C^\top_{x_i}$ which corresponds to the classifier weights for the target class (or token in this case) $x_i$ and the Embedding vector $E_I$ of the target token.</p>
+<p>To compute the second part of the equation, the  Log Sum Exp, we must first compute a bunch of intermediary tensors.
 </p>
 \[
 \log \sum_j \exp(C^\top_j E_i)
@@ -297,7 +298,7 @@ C^\top_{x_i} E_i
 <p>Find the max of the computed logits</p>
 </li>
 <li>
-<p>Substract the logits from the max (This is done for numerical stability to prevent floating point underflows)</p>
+<p>Substract the logits from the max (This is done for numerical stability.)</p>
 </li>
 <li>
 <p>Compute the exponent of the normalized logits </p>
@@ -311,30 +312,30 @@ C^\top_{x_i} E_i
 <p>finally, we take the log of the sums and store it as the loss.</p>
 </li>
 </ul>
-<p>Each of these steps requires intermediary tensors of size $ B, S, V$ in global memory.</p>
+<p>Each of these steps requires an intermediary tensor of size $ B, S, V$ in global memory.</p>
 <p>Gemma2 has a max sequence length of 80,000 and a vocab size of 256,128 assuming a batch size of 8 and Bf16 floating points precision;</p>
 <p>The total memory requirement sums to</p>
 \[
 8*800000*256128*2 = 256gb
 \]
-<p>about 256gb of memory, just to store the intermediate tensors required to compute the cross entropy loss, accounting for over 90% of the total memory consumption of the training process.</p>
+<p>about 256gb of memory, just to compute the cross entropy loss, accounting for over 90% of the total memory consumption of the model&rsquo;s training process.</p>
 <h2 id="cut-cross-entropy">Cut Cross Entropy<a hidden class="anchor" aria-hidden="true" href="#cut-cross-entropy">#</a></h2>
-<p>Cut Cross Entropy approaches the memory problem through efficient forward and backward passes using custom fused kernels.</p>
+<p>Cut Cross Entropy paper approaches this problem by implementing efficient forward and backward passes using custom fused kernels.</p>
 <h3 id="forward-pass">Forward Pass<a hidden class="anchor" aria-hidden="true" href="#forward-pass">#</a></h3>
-<p>The cross entropy loss is once again given as:</p>
+<p>Since we already reformulated the cross entropy loss as:</p>
 \[
-\ell_i(x) = C^\top_{x_i} E_i - \log \sum_j \exp(C^\top_j E_i)
+\ell_i(x) = - C^\top_{x_i} E_i + \log \sum_j \exp(C^\top_j E_i)
 \]
 <p>We can break this into two separate steps , the indexed matrix multiplication and the Log Sum Exp.</p>
 <p>As mentioned earlier, a naive computation of the indexed matrix multiplication involves either indexing the classifier weight matrix (CI) with a memory cost of O(ND) in the worst case scenario, and then performing the dot product, or computing </p>
-\[(C^\top_j E_i) \]
+\[(C^\top_i E_i) \]
 <p> which materializes the logits for every token and then indexing into the result to get the logit for the target class, with an O(N|V |) memory cost.</p>
 <p>Cut Cross Entropy uses a different approach,</p>
 <p><img loading="lazy" src="/indexed_mat_mul.png" alt="Indexed Matrix Multiplication"  />
 </p>
-<p>The above algorithm, uses tiling to efficiently materialize blocks of E and C in the on-chip SRAM (shared memory) on the GPU. Rather than materializing all the logits in global memory, we accumulate the dot product on each tile in o, then write final dot product to global memory for a block,</p>
-<p>?? to include values on how much memory is saved using tiling.</p>
-<p>This implementation is efficient and fast, because we can now compute the dot product C E without storing large tensors in memory.</p>
+<p>The above algorithm, uses tiling to efficiently materialize blocks of E and C in the on-chip SRAM (shared memory) on the GPU.</p>
+<p>The first loop iterates through every</p>
+<p>This implementation is done in triton, so we can fully make use of the tiling approach. Since, like we already know, every thread block has it&rsquo;s own shared memory, every iteration of the loop above uses the faster SRAM to store it&rsquo;s chunk of the E and C, and writes it&rsquo;s dot product to O, after iterating through a block, we then write the result for that block in GPU Global memory.</p>
 <p>The triton implementation for this is shown below</p>
 <pre tabindex="0"><code>
 import triton
@@ -409,10 +410,10 @@ def _indexed_neg_dot_forward_kernel(
       <li><a href="//localhost:1313/tags/llms/">LLMs</a></li>
     </ul>
 <nav class="paginav">
-  <a class="next" href="//localhost:1313/articles/diff_attention/">
+  <a class="next" href="//localhost:1313/articles/threadpools/">
     <span class="title">Next »</span>
     <br>
-    <span>Understanding Differential Attention.</span>
+    <span>Handling Blocking Coroutines effectively in Asyncio</span>
   </a>
 </nav>
 

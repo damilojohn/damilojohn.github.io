@@ -1,7 +1,7 @@
 ---
 title: "Understanding Differential Attention."
 date: 2024-12-11T04:14:46+01:00
-draft: false
+draft: true
 math: true
 cover:
     image: "diff_attn.png"

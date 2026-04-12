@@ -1,5 +1,5 @@
 ---
-title: "What do you do when majority of your Coroutines are blocking?"
+title: "Handling Blocking Coroutines effectively in Asyncio"
 date: 2024-12-11T04:14:46+01:00
 draft: false
 math: true
