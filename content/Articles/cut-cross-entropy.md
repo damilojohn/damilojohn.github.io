@@ -3,7 +3,7 @@ title: "Cut Cross Entropy: 20x Memory reduction in LLM Pre-training through opti
 date: 2026-01-16T08:25:46+01:00
 draft: false
 cover:
-    image: "diff_attn.png"
+    image: "cce.png"
     alt: 'Cross Entropy'
 tags: ['Transformers','Deep Learning', 'LLMs']
 Categories: ['NLP']
@@ -23,7 +23,7 @@ However, looking beyond the model itself, the cross entropy loss function has ha
 Cross Entropy originates from information theory, and is a function that measures the difference between two probability distributions. In Machine Learning, the Cross Entropy Loss function is used in calculating the loss between the model's predicted probabilities and the dataset's true value. 
 
 
-# LLM Training
+# LLM Pre-Training
 
 Large language models are trained by autoregressively predicting the next token in a corpus, this corpus could vary from the entire internet, scientific texts and literature, textbooks etc in large scale pretraining, to smaller datasets on specific niches or domains as in model fine-tuning.
 
@@ -125,15 +125,15 @@ Thus for every token, we predict the log probabilities for every token in the mo
 As mentioned earlier, the Logits are then used to generate the probability distribution, used in computing the cross entropy loss.
 
 ## The Memory Problem
-At inference, sampling from the model's predicted probabilities is efficient for any token as it is independent of the sequence length, since the model produces one token at a time at each step using the hidden state E of the last token in the sequence.
+At inference, sampling from the model's predicted probabilities is efficient for any token regardless of its position in the sequence, since the model produces one token at a time at each step using the hidden state E of the last token in the sequence.
 
-During Training, for a sequence 
+At Training, for a sequence 
 
 \[
 (x1, . . . , xN)
 \]
 
-the model's outputs
+the LLM's outputs
 \[
 f(x1), f(x1, x2), . . . , f(x1, . . . , xN)
 \]
@@ -141,7 +141,7 @@ are also computed in parallel. However, extra memory is required for saving the 
 
 Researchers over the years have come up with different optimization techniques like activation checkpointing, Gradient Accumulation etc, to help optimize memory consumption during training, and these are outside the scope of our interests here.
 
-However, despite optimizing the memory consumption of gradients, activations and optimizer states, the unsuspecting final layer (computing the cross entropy loss) occupies a significant chunk of the model's memory footprint during training. 
+However, despite optimizing the memory consumption of gradients, activations and optimizer states, the unsuspecting final layer (computing the cross entropy loss) has been shown to occupy a significant chunk of the model's memory footprint during training. 
 
 In the Cut Cross entropy paper, the authors noted that in Large Vocabulary models (See why Large Vocabularies are better), the log probabilites materialized for computing the cross entropy accounts for 40\% to 90\% (in smaller models with large vocabularies) of the memory consumption at training.This poses a problem since larger vocabularies mean better text compression, and subsequently less compute during inference. This also makes them suitable for multilingual models and low-resource-language applications.
 
@@ -192,7 +192,8 @@ C^\top_{x_i} E_i
 
 This is a simple dot product between the column vector $C^\top_{x_i}$ which corresponds to the classifier weights for the target class (or token in this case) $x_i$ and the Embedding vector $E_I$ of the target token.
 
-To compute the second part of the equation, the  Log Sum Exp, we must first compute a bunch of intermediary tensors.
+To compute the second part of the equation, the  Log Sum Exp:
+
 \[
 \log \sum_j \exp(C^\top_j E_i)
 \]
@@ -207,23 +208,21 @@ the logits for all tokens in the vocab \[(C^\top_j E_i) \]
 
 - sum the exponents \[\sum_j \exp(C^\top_j E_i)\]
 
-- finally, we take the log of the sums and store it as the loss.
+- finally, we take the log of the sums
 
 Each of these steps requires an intermediary tensor of size $ B, S, V$ in global memory.
 
-Gemma2 has a max sequence length of 80,000 and a vocab size of 256,128 assuming a batch size of 8 and Bf16 floating points precision;
-
-The total memory requirement sums to 
+Gemma2 has a max sequence length of 80,000 and a vocab size of 256,128, assuming a batch size of 8 sequences and Bf16 floating point precision, the total memory required to perform the above calculation, sums to 
 
 \[
-8*800000*256128*2 = 256gb
+8*80000*256128*2 = 256gb
 \]
 
-about 256gb of memory, just to compute the cross entropy loss, accounting for over 90% of the total memory consumption of the model's training process.
+about 256gb of memory, spent just computing the cross entropy loss, accounting for over 90% of the total memory use in training.
 
 ## Cut Cross Entropy 
 
-Cut Cross Entropy paper approaches this problem by implementing efficient forward and backward passes using custom fused kernels.
+Cut Cross Entropy paper approaches this problem by implementing efficient forward and backward passes using custom fused triton kernels, implementing ideas like tiling and indexed loads, together with the reformulation above. This approach ensures that only small chunks of E and C are loaded into the fast GPU shared memory, and by parallelizing across thread blocks, we don't incure any meaningful latency overhead.
 
 ### Forward Pass
 
@@ -233,52 +232,78 @@ Since we already reformulated the cross entropy loss as:
 \ell_i(x) = - C^\top_{x_i} E_i + \log \sum_j \exp(C^\top_j E_i)
 \]
 
-We can break this into two separate steps , the indexed matrix multiplication and the Log Sum Exp. 
+The cut cross entropy paper breaks the terms above into two separate triton kernels in the forward pass: 
 
-As mentioned earlier, a naive computation of the indexed matrix multiplication involves either indexing the classifier weight matrix (CI) with a memory cost of O(ND) in the worst case scenario, and then performing the dot product, or computing \[(C^\top_i E_i) \] which materializes the logits for every token and then indexing into the result to get the logit for the target class, with an O(N|V |) memory cost.
+- An indexed Negative Dot Product 
+- The Log Sum Exp
+
+#### Indexed Negative Dot Product
+
+As mentioned earlier, a naive computation of the indexed matrix multiplication involves either indexing the classifier weight matrix ($C^\top$) with a memory cost of **O(ND)** , and then performing the dot product, or computing $\left(C^\top E_i\right)$ which materializes the logits for every token and then indexing into the result to get the logit for the target class, with an $O(N|V|)$ memory cost.
 
 Cut Cross Entropy uses a different approach, 
 
 ![Indexed Matrix Multiplication](/indexed_mat_mul.png)
 
+The algorithm above can be simply summarized as:
+- Each thread block computes  **NB** dot productS for **NB** tokens from the input sequence and writes them to **O**.
+- For a token position ***i*** in the input sequence, to compute C^T X E, we need to load ***xi*** (the actual token value), ***Ei*** and ***Cxi*** into the shared memory (SRAM) of our threadgroup.
+- Since we have limited shared memory, we can't load the full hidden states ***E(NB, D)*** and ***C(NB, D)***
+- We break ***E*** and ***C*** into tiles of size ***(NB, DB)*** and ***(NB, DB)*** respectively, and compute the dot product for these tiles, iterating over the **D** dimension of E and C and accumulating the scores in shared memory, before writing to **O** in global memory.
 
-The above algorithm, uses tiling to efficiently materialize blocks of E and C in the on-chip SRAM (shared memory) on the GPU. 
-
-The first loop iterates through every 
-
-This implementation is done in triton, so we can fully make use of the tiling approach. Since, like we already know, every thread block has it's own shared memory, every iteration of the loop above uses the faster SRAM to store it's chunk of the E and C, and writes it's dot product to O, after iterating through a block, we then write the result for that block in GPU Global memory. 
-
-
-The triton implementation for this is shown below 
+Here's my implementation:
 
 ```
-
-import triton
-import triton.language as tl
-
-
-def _indexed_neg_dot_forward_kernel(
-    E,
-    C,
-    Inds,
-    Valids,
-    Out,
-    B,
-    D,
-    stride_eb,
+def indexed_dot_kernel(
+    E_ptr,  # Hidden states 
+    C_ptr,  # Model's Classifier weight matrix
+    x_ptr,  # target tokens
+    O_ptr,  # where are we writing dot products to?
+    N,  # sequence_length
+    D,  # Hidden_Dim
+    V,  # Vocab size
+    BLOCK_N: tl.constexpr,  # Block size across x, how many tokens is this block attending to
+    BLOCK_D: tl.constexpr,  # how much of E are we loading at once across the D dimension
+    stride_en,
     stride_ed,
     stride_cv,
     stride_cd,
-    stride_ib,
-    stride_vb,
-    B_BIN,
-    BLOCK_B: tl.constexpr,
-    BLOCK_D: tl.constexpr,
-    GROUP_B: tl.constexpr,
-    HAS_VALIDS: tl.constexpr,
-    EVEN_D: tl.constexpr,
-    SHIFT: tl.constexpr,
 ):
+    pid = tl.program_id(axis=0)  # what tokens am I handling in the input sequence?
+
+    x_offsets = pid * BLOCK_N + tl.arange(0, BLOCK_N)  # computing address offsets
+    x_mask = x_offsets < N
+
+    # loading token indices
+
+    x = tl.load(x_ptr + x_offsets, mask=x_mask, other=0) 
+    # temporary tensor to store dot products for NB tokens in SRAM
+    o = tl.zeros([BLOCK_N], dtype=tl.float32)
+    # reduction over D
+    for d in range(0, D, BLOCK_D):
+        d_offsets = d + tl.arange(0, BLOCK_D)
+        # loading E tile
+        e = tl.load(
+            E_ptr + x_offsets[:, None] * stride_en + d_offsets[None, :] * stride_ed,
+            mask=(x_offsets[:, None] < N) & (d_offsets[None, :] < D),
+            other=0.0
+        )
+        # loading C tile
+        c = tl.load(
+            C_ptr + x[:, None]*stride_cv + d_offsets[None, :] * stride_cd,
+            mask=(x[:,None] < V) & (d_offsets[None, :] < D),
+            other=0.0
+        )
+        # accumulating
+        o += tl.sum((e*c).to(tl.float32), axis=1)
+    # writing back to global memory
+    tl.store(O_ptr + x_offsets, -o, mask=x_mask)
+
+```
+Each threadblock loads NB tokens, performs reduction over the D dimensions of the hidden states, and loads up tiles of ***E*** and ***C***, performs the dot product and accumulates the result. However, this is not efficient enough as we only parallelize of the token sequence length N, and would end up utilizing less than 60% of our Streaming Multiprocessors in most cases.
+
+The official apple implementation however, parellizes over both tokens and hidden dimensions, using a 2d logical kernel grid.
+```
     pid = tl.program_id(axis=0)
     num_b_chunks = tl.cdiv(B, BLOCK_B)
     num_d_chunks = tl.cdiv(D, BLOCK_D)
@@ -313,30 +338,131 @@ def _indexed_neg_dot_forward_kernel(
     dot = (e * c).to(tl.float32)
     neg_dot = -tl.sum(dot, 1).to(out_ptrs.dtype.element_ty)
     tl.atomic_add(out_ptrs, neg_dot, mask=offs_b < B)
+```
 
+This way multiple thread blocks can compute over the same E tile, which introduces a need to synchronize threads (minimal overhead compared to the cost of underutilizing the gpu), this synchronization is done by :
+
+```
+tl.atomic_add(out_ptrs, neg_dot, mask=offs_b < B)
 ```
 
 
-The second part of our equation, the Log Sum Exp, is also implemented using a 
+The second part of our equation, the Log-Sum-Exp, is also implemented using a similar approach 
+![Efficient Log-Sum-Exp](/logsumexp.png)
+
+
+Again, to summarize:
+- Each threadblock computes the log sum exp for ***NB*** tokens
+
+
+- We parallelize over both NB(tokens) and VB (vocab size), to avoid loading up the full C matrix into SRAM for each token.
+
+```
+def _cce_lse_forward_kernel(
+    E,
+    C,
+    LSE,
+    LA,
+    Locks,
+    Valids,
+    softcap,
+    B,
+    V,
+    D,
+    stride_eb,
+    stride_ed,
+    stride_cv,
+    stride_cd,
+    stride_lse_b,
+    stride_vb,
+    num_locks,
+    # Meta-parameters
+    B_BIN,
+    HAS_VALIDS: tl.constexpr,
+    BLOCK_B: tl.constexpr,
+    BLOCK_V: tl.constexpr,
+    BLOCK_D: tl.constexpr,  #
+    GROUP_B: tl.constexpr,  #
+    EVEN_D: tl.constexpr,
+    HAS_SOFTCAP: tl.constexpr,
+    HAS_LA: tl.constexpr,
+    DOT_PRECISION: tl.constexpr,
+):
+    pid = tl.program_id(axis=0)
+    num_pid_b = tl.cdiv(B, BLOCK_B)
+    num_pid_v = tl.cdiv(V, BLOCK_V)
+    num_pid_in_group = GROUP_B * num_pid_v
+    group_id = pid // num_pid_in_group
+    first_pid_b = group_id * GROUP_B
+    group_size_b = min(num_pid_b - first_pid_b, GROUP_B)
+    pid_b = first_pid_b + ((pid % num_pid_in_group) % group_size_b)
+    pid_v = (pid % num_pid_in_group) // group_size_b
+
+    offs_b = (pid_b * BLOCK_B + tl.arange(0, BLOCK_B)) % B
+    if HAS_VALIDS:
+        offs_b = tl.load(Valids + stride_vb * offs_b)
+
+    offs_v = (pid_v * BLOCK_V + tl.arange(0, BLOCK_V)) % V
+    offs_d = tl.arange(0, BLOCK_D)
+    e_ptrs = E + (offs_b[:, None] * stride_eb + offs_d[None, :] * stride_ed)
+    c_ptrs = C + (offs_v[None, :] * stride_cv + offs_d[:, None] * stride_cd)
+
+```
+
+- We use reduction to avoid loading up either E or C across the entire D Dimension, so we only ever load ***E(NB, DB)*** and ***C(VB, DB)*** at any point in time, accumulating the dot products in ***accum*** in shared memory. ***Accum*** now contains partial logits for every token in this program, since it was computed from ***E(NB, D)*** and ***C(D, VB)***, and not the full ***C(D, V)***
+
+```
+    accum = tl.zeros((BLOCK_B, BLOCK_V), dtype=tl.float32)
+    for d in range(0, tl.cdiv(D, BLOCK_D)):
+        # Load the next block of E and C, generate a mask by checking the K dimension.
+        # If it is out of bounds, set it to 0.
+        if EVEN_D:
+            e = tl.load(e_ptrs)
+            c = tl.load(c_ptrs)
+        else:
+            e = tl.load(e_ptrs, mask=offs_d[None, :] < D - d * BLOCK_D, other=0.0)
+            c = tl.load(c_ptrs, mask=offs_d[:, None] < D - d * BLOCK_D, other=0.0)
+        accum = tl.dot(e, c, accum, input_precision=DOT_PRECISION)
+        e_ptrs += BLOCK_D * stride_ed
+        c_ptrs += BLOCK_D * stride_cd
+```
+
+- The log sum exp over the partial logits is now computed by finding the max of the logits over this ***VB*** block, substracting it from all logits, calculate the exponent of the sums, the log of the exponent, and then sum back the max to the log. 
+```
+    this_mx = tl.max(logits, axis=1)
+    e = tl.exp(logits - this_mx[:, None])
+    this_lse = this_mx + tl.log(tl.sum(e, axis=1))
+
+```
+
+- Remember we only have partial logits of size **(NB, VB)**, since each thread block computes the logits over a VB portion of the model's vocabulary. "this_lse" holds the log-sum-exp for the partial logits, which is not the full value we need. However, at this point, other programs with the same ***pid_b*** (handling the same token block), and different values for ***pid_v***, would have calculated their "this_lse" values for the other (VB) blocks in V, we need to find a way to sum these values.
+
+
+```
+    lse_ptrs = LSE + (stride_lse_b * off_b)
+
+    this_locks = Locks + (pid_b // tl.cdiv(B, BLOCK_B * num_locks))
+    while tl.atomic_cas(this_locks, 0, 1) == 1:
+        pass
+```
+
+- The final log-sum-exp are stored at LSE, however since multiple thread blocks with the same ***pid_b*** will write to the same locations in LSE, a spin atomic lock is used to prevent race conditions, and whoever holds the lock writes their computed LSE value.
+
+```
+
+    lse = tl.load(lse_ptrs, mask=o_mask, other=0.0, eviction_policy="evict_last")
+    lse = tl_logaddexp(lse, this_lse)
+    tl.store(lse_ptrs, lse, mask=o_mask, eviction_policy="evict_last")
+
+    tl.atomic_xchg(this_locks, 0)
+
+```
+
+- Finally, we load the logits currently accumulated in ***lSE***, and use the logaddexp function to add our partial logits ***this_lse*** to the accumulated ***lse*** value, write back to our blocks in ***LSE***, and finally release the lock.
 
 
 
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
+### Backward Pass
 
 
 

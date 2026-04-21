@@ -71,19 +71,10 @@
     <loc>//localhost:1313/articles/threadpools/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
-    <loc>//localhost:1313/categories/llm/</loc>
-    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/tags/natural-language-processing/</loc>
-    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
-  </url><url>
     <loc>//localhost:1313/categories/python/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/categories/software-engineering/</loc>
-    <lastmod>2024-12-11T04:14:46+01:00</lastmod>
-  </url><url>
-    <loc>//localhost:1313/articles/diff_attention/</loc>
     <lastmod>2024-12-11T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/agents/</loc>
@@ -120,6 +111,12 @@
     <lastmod>2024-08-15T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/articles/text-desrambler/</loc>
+    <lastmod>2024-06-15T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/categories/llm/</loc>
+    <lastmod>2024-06-15T04:14:46+01:00</lastmod>
+  </url><url>
+    <loc>//localhost:1313/tags/natural-language-processing/</loc>
     <lastmod>2024-06-15T04:14:46+01:00</lastmod>
   </url><url>
     <loc>//localhost:1313/tags/fine-tuning/</loc>
