@@ -28,29 +28,25 @@
         }
 
     </style>
-</noscript><link rel="stylesheet" href="/css/custom-effects.css"><script src="/js/custom-effects.js" defer></script>
-</head>
-
-<head>
-    ...
-    
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+</noscript><link rel="stylesheet" href="/css/custom-effects.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     renderMathInElement(document.body, {
       delimiters: [
-        {left: '\\[', right: '\\]', display: true},   
-        {left: '$$', right: '$$', display: true},     
-        {left: '\\(', right: '\\)', display: false},  
+        {left: '\\[', right: '\\]', display: true},
+        {left: '$$', right: '$$', display: true},
+        {left: '\\(', right: '\\)', display: false},
+        {left: '$', right: '$', display: false},
       ],
       throwOnError : false
     });
   });
 </script>
-    
-    ...
+
+<script src="/js/custom-effects.js" defer></script>
 </head>
 
 <body class="list" id="top">
@@ -138,7 +134,7 @@
       <div class="entry-content">
         <p>Introduction I recently had to implement a feature at work that basically sent a ton of emails, with custom attachments to a ton of buyers across the world. Since we had a broker, for placing mails on a queue that were picked and sent by workers, how architecture was already primed for asynchronous communication. However, on the client side, placing these emails asynchronously wasn’t as simple. The main path between creating the mail and actually placing it on the service bus (broker), consisted mainly of blocking, CPU heavy tasks ; reading excel files, adding user information, serializing excel files to an in-memory buffer, base64 encoding these bytes and decoding them to strings, before finally creating the message json and sending it to the queue (this is non blocking)....</p>
       </div>
-      <footer class="entry-footer">&lt;span title=&#39;2024-12-11 04:14:46 &#43;0100 WAT&#39;&gt;December 11, 2024&lt;/span&gt;&amp;nbsp;·&amp;nbsp;1 min&amp;nbsp;·&amp;nbsp;163 words&amp;nbsp;·&amp;nbsp;Damilola John</footer>
+      <footer class="entry-footer"><span title='2024-12-11 04:14:46 +0100 WAT'>December 11, 2024</span>&nbsp;·&nbsp;1 min&nbsp;·&nbsp;163 words&nbsp;·&nbsp;Damilola John</footer>
     </article>
 </div>
     </main>

@@ -26,5 +26,15 @@
       <description>A GPT-2 model fine-tuned to reconstruct grammatically correct sentences from randomly ordered word sequences — e.g. turning &amp;#39;The expensive. show equations is computationally that&amp;#39; back into coherent prose.</description>
     </item>
     
+    <item>
+      <title> Implementing A spell checker with Bloom Filters</title>
+      <link>//localhost:1313/projects/bloom_filter_autocorrect/</link>
+      <pubDate>Fri, 15 Mar 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/projects/bloom_filter_autocorrect/</guid>
+      <description>An Application of bloom filters in spell-checking Git repo
+Article</description>
+    </item>
+    
   </channel>
 </rss>

@@ -14,8 +14,8 @@
       <pubDate>Fri, 16 Jan 2026 08:25:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/cut-cross-entropy/</guid>
-      <description>Introduction 2024 saw the first 100m$+ training runs, while the insane compute requirements for training Large Language Models isn&amp;rsquo;t a secret,the
-The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM. (Essentially the idea here is that we tried to optimize self attention by modifying how the operation is performed on the GPU.</description>
+      <description>Introduction Whilst working on pretraining SabiYarn in 2025, I came across a really interesting paper by a team at Apple called &amp;ldquo;Cut Your Losses In Large-Vocabulary Language Models&amp;rdquo;, they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes.
+Deepseek&amp;rsquo;s emergence in December 2024 marked a significant turning point in the LLM industry.</description>
     </item>
     
   </channel>

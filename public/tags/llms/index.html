@@ -28,29 +28,25 @@
         }
 
     </style>
-</noscript><link rel="stylesheet" href="/css/custom-effects.css"><script src="/js/custom-effects.js" defer></script>
-</head>
-
-<head>
-    ...
-    
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+</noscript><link rel="stylesheet" href="/css/custom-effects.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     renderMathInElement(document.body, {
       delimiters: [
-        {left: '\\[', right: '\\]', display: true},   
-        {left: '$$', right: '$$', display: true},     
-        {left: '\\(', right: '\\)', display: false},  
+        {left: '\\[', right: '\\]', display: true},
+        {left: '$$', right: '$$', display: true},
+        {left: '\\(', right: '\\)', display: false},
+        {left: '$', right: '$', display: false},
       ],
       throwOnError : false
     });
   });
 </script>
-    
-    ...
+
+<script src="/js/custom-effects.js" defer></script>
 </head>
 
 <body class="list" id="top">
@@ -128,7 +124,7 @@
 
 <div class="grid-container">
     <article class="post-entry"> 
-<figure class="entry-cover"><img loading="lazy" src="//localhost:1313/diff_attn.png" alt="Cross Entropy">
+<figure class="entry-cover"><img loading="lazy" src="//localhost:1313/cce.png" alt="Cross Entropy">
 </figure>
       <header class="entry-header">
         <h2>
@@ -136,10 +132,10 @@
         </h2>
       </header>
       <div class="entry-content">
-        <p>Introduction 2024 saw the first 100m$&#43; training runs, while the insane compute requirements for training Large Language Models isn’t a secret,the
-The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM. (Essentially the idea here is that we tried to optimize self attention by modifying how the operation is performed on the GPU....</p>
+        <p>Introduction Whilst working on pretraining SabiYarn in 2025, I came across a really interesting paper by a team at Apple called “Cut Your Losses In Large-Vocabulary Language Models”, they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes.
+Deepseek’s emergence in December 2024 marked a significant turning point in the LLM industry....</p>
       </div>
-      <footer class="entry-footer">&lt;span title=&#39;2026-01-16 08:25:46 &#43;0100 WAT&#39;&gt;January 16, 2026&lt;/span&gt;&amp;nbsp;·&amp;nbsp;9 min&amp;nbsp;·&amp;nbsp;1870 words&amp;nbsp;·&amp;nbsp;Damilola John</footer>
+      <footer class="entry-footer"><span title='2026-01-16 08:25:46 +0100 WAT'>January 16, 2026</span>&nbsp;·&nbsp;15 min&nbsp;·&nbsp;3008 words&nbsp;·&nbsp;Damilola John</footer>
     </article>
 </div>
     </main>

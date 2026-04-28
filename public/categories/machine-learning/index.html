@@ -28,29 +28,25 @@
         }
 
     </style>
-</noscript><link rel="stylesheet" href="/css/custom-effects.css"><script src="/js/custom-effects.js" defer></script>
-</head>
-
-<head>
-    ...
-    
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+</noscript><link rel="stylesheet" href="/css/custom-effects.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     renderMathInElement(document.body, {
       delimiters: [
-        {left: '\\[', right: '\\]', display: true},   
-        {left: '$$', right: '$$', display: true},     
-        {left: '\\(', right: '\\)', display: false},  
+        {left: '\\[', right: '\\]', display: true},
+        {left: '$$', right: '$$', display: true},
+        {left: '\\(', right: '\\)', display: false},
+        {left: '$', right: '$', display: false},
       ],
       throwOnError : false
     });
   });
 </script>
-    
-    ...
+
+<script src="/js/custom-effects.js" defer></script>
 </head>
 
 <body class="list" id="top">
@@ -128,6 +124,47 @@
 
 <div class="grid-container">
     <article class="post-entry"> 
+<figure class="entry-cover"><img loading="lazy" src="//localhost:1313/iss.jpg" alt="image sensor">
+</figure>
+      <header class="entry-header">
+        <h2>
+          <a href="//localhost:1313/articles/image-localization/"> Image Localization and Object Distance Prediction with Pytorch.</a><sup><span class="entry-isdraft">&nbsp;&nbsp;[draft]</span></sup>
+        </h2>
+      </header>
+      <div class="entry-content">
+        <p>Docking to the ISS would have been more fun if we actually had to dock with the international space station, regardless, we have an interesting problem of trying to create an automatic ISS docker by estimating the coordinates and distance of the international space station from images.
+In this article , we would be using deep learning to estimate the coordinates of an object in an image and also training the model to predict the distance of images ....</p>
+      </div>
+      <footer class="entry-footer"><span title='2023-08-16 04:14:46 +0100 WAT'>August 16, 2023</span>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;291 words&nbsp;·&nbsp;Damilola John</footer>
+    </article>
+    <article class="post-entry"> 
+<figure class="entry-cover"><img loading="lazy" src="//localhost:1313/molecule.gif" alt="">
+</figure>
+      <header class="entry-header">
+        <h2>
+          <a href="//localhost:1313/articles/learning_to_smell/">Learning to smell from Molecules </a><sup><span class="entry-isdraft">&nbsp;&nbsp;[draft]</span></sup>
+        </h2>
+      </header>
+      <div class="entry-content">
+        <p>The title of this post might be a little confusing but what we are really going to do is to try and build a model to classify smells from their molecular compounds. This little project intertwines the realms of chemistry and machine learning,
+Our noses have more than 400 types of olfactory receptors expressed in 1 million&#43; olfactory sensory neurons, which are all on a small tissue - olfactory epithelium....</p>
+      </div>
+      <footer class="entry-footer"><span title='2023-08-15 04:14:46 +0100 WAT'>August 15, 2023</span>&nbsp;·&nbsp;1 min&nbsp;·&nbsp;161 words&nbsp;·&nbsp;Damilola John</footer>
+    </article>
+    <article class="post-entry"> 
+<figure class="entry-cover"><img loading="lazy" src="//localhost:1313/vibe_book.png" alt="Playlist Generator">
+</figure>
+      <header class="entry-header">
+        <h2>
+          <a href="//localhost:1313/projects/playlist_generator/">Playlist Generator</a><sup><span class="entry-isdraft">&nbsp;&nbsp;[draft]</span></sup>
+        </h2>
+      </header>
+      <div class="entry-content">
+        <p>Playlist Generator An app that uses semantic search to generate afrobeat song playlists from input texts This is a side project where I built an end-to-end machine learning application that uses a sentence transformer model hosted as a model-as-a-service. It is a simple recommendation system that tries to find afrobeat songs about a user’s sentiment by comparing the user’s text inputs to song lyrics and then return the most similar songs....</p>
+      </div>
+      <footer class="entry-footer"><span title='2023-08-11 02:14:46 +0100 WAT'>August 11, 2023</span>&nbsp;·&nbsp;1 min&nbsp;·&nbsp;138 words&nbsp;·&nbsp;Damilola John</footer>
+    </article>
+    <article class="post-entry"> 
 <figure class="entry-cover"><img loading="lazy" src="//localhost:1313/tokenizers.jpg" alt="tokenizers">
 </figure>
       <header class="entry-header">
@@ -138,7 +175,7 @@
       <div class="entry-content">
         <p>Tokenization is an umbrella term for the methods used to turn texts into chunks of words or sub-words. Tokenization has a lot of applications in computer science, from compilers to Natural Language Processing. In this article, we would be focusing on tokenizers in Language models, in particular, a method of tokenization called Byte Pair Encoding. The last few years have witnessed a revolution in NLP catalyzed mainly by the introduction of the transformers architecture in 2017 with the paper ‘Attention is all you need ’ epitomized by the introduction of ChatGPT in late 2022....</p>
       </div>
-      <footer class="entry-footer">&lt;span title=&#39;2023-07-20 04:14:46 &#43;0100 WAT&#39;&gt;July 20, 2023&lt;/span&gt;&amp;nbsp;·&amp;nbsp;13 min&amp;nbsp;·&amp;nbsp;2564 words&amp;nbsp;·&amp;nbsp;Damilola John</footer>
+      <footer class="entry-footer"><span title='2023-07-20 04:14:46 +0100 WAT'>July 20, 2023</span>&nbsp;·&nbsp;13 min&nbsp;·&nbsp;2564 words&nbsp;·&nbsp;Damilola John</footer>
     </article>
     <article class="post-entry"> 
 <figure class="entry-cover"><img loading="lazy" src="//localhost:1313/comp.photography.png" alt="image sensor">
@@ -152,7 +189,7 @@
         <p>And Enhance!! (from Blade Runner ), that’s Computational Photography .
 Computational photography describes signal processing techniques and algorithms that allow computers to replicate photographic processes like motion - blur correction , auto-focus ,depth-sensing , zoom and other features that would otherwise be impossible without optics ,while some of these processes use artificial intelligence techniques, Computational Photography is more than just AI , it involves a series of process like that takes an image from the Ones and Zeros on captured by image signal sensors and process to the final image displayed on screens ....</p>
       </div>
-      <footer class="entry-footer">&lt;span title=&#39;2023-05-10 04:14:46 &#43;0100 WAT&#39;&gt;May 10, 2023&lt;/span&gt;&amp;nbsp;·&amp;nbsp;3 min&amp;nbsp;·&amp;nbsp;500 words&amp;nbsp;·&amp;nbsp;Damilola John</footer>
+      <footer class="entry-footer"><span title='2023-05-10 04:14:46 +0100 WAT'>May 10, 2023</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;500 words&nbsp;·&nbsp;Damilola John</footer>
     </article>
 </div>
     </main>

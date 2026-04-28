@@ -14,8 +14,18 @@
       <pubDate>Fri, 16 Jan 2026 08:25:46 +0100</pubDate>
       
       <guid>//localhost:1313/articles/cut-cross-entropy/</guid>
-      <description>Introduction 2024 saw the first 100m$+ training runs, while the insane compute requirements for training Large Language Models isn&amp;rsquo;t a secret,the
-The biggest / most successful of these optimizations in recent times has been flash attention (cite here), an idea that focuses on how the compute hungry (O(N)^2) self attention mechanism is computed, by moving attention matrices to SRAM. (Essentially the idea here is that we tried to optimize self attention by modifying how the operation is performed on the GPU.</description>
+      <description>Introduction Whilst working on pretraining SabiYarn in 2025, I came across a really interesting paper by a team at Apple called &amp;ldquo;Cut Your Losses In Large-Vocabulary Language Models&amp;rdquo;, they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes.
+Deepseek&amp;rsquo;s emergence in December 2024 marked a significant turning point in the LLM industry.</description>
+    </item>
+    
+    <item>
+      <title>Understanding Differential Attention.</title>
+      <link>//localhost:1313/articles/diff_attention/</link>
+      <pubDate>Wed, 11 Dec 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/diff_attention/</guid>
+      <description>Introduction Over the last few years, Transformers have emerged as the de-facto deep learning architecture in modelling language. Their unprecendented success in solving complex language tasks, reasoning (or mimmicking it), solving math and coding problems, have ushered in a new era in AI, powering successful AI products like ChatGPT.
+The key innovation of transformers lies in the self-attention mechanism, which allows each tokens in the input sequence to attend to every other token in the sequence.</description>
     </item>
     
     <item>
@@ -26,6 +36,56 @@ The biggest / most successful of these optimizations in recent times has been fl
       <guid>//localhost:1313/articles/text-desrambler/</guid>
       <description>Two words are anagrams if one can be formed by permuting the letters of the other. Applying the same logic to a sentence, would be saying that two sentences are anagrams(no such thing) if their component words can be permutated to form clones of each other.
 I thought it would be interesting to teach a language model to do this. You might be thinking that simply re-arranging words in a sentence doesn&amp;rsquo;t require intelligence and can be done with very trivial algorithms,you would be right, but I added an edge to this task, given a random sequence of words, the language model has to return a grammatically correct sequence using the same set of words.</description>
+    </item>
+    
+    <item>
+      <title>Building A Text based Books Recommendation engine</title>
+      <link>//localhost:1313/articles/zeeno/</link>
+      <pubDate>Wed, 15 May 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/zeeno/</guid>
+      <description>Building a text-based books recommendation engine Find books by describing what they are about.
+Finding books What does that really mean? A recommendation engine is an algorithm or bunch of algorithms that help users find contents about a particular modality(video, text etc). A text based recommendation engine is one that helps users find information about some text input.
+Semantic Search Architecture Zeeno was built using a combination of semantic search and hybrid keyword search.</description>
+    </item>
+    
+    <item>
+      <title>Art History Educational Tool</title>
+      <link>//localhost:1313/projects/askarthistory/</link>
+      <pubDate>Thu, 15 Feb 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/projects/askarthistory/</guid>
+      <description>Nike A RAG-based multimodal chatbot that acts as an education tool and answers questions on Yoruba Art History.</description>
+    </item>
+    
+    <item>
+      <title>Lessons from Training a Tokenizer on Nigerian Languages.</title>
+      <link>//localhost:1313/articles/training-tokenizers/</link>
+      <pubDate>Thu, 15 Feb 2024 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/training-tokenizers/</guid>
+      <description>The first step to training a foundational language model on a new language is to train a tokenizer. In this article, we would be focusing on the challenges that arise when training tokenizers on large datasets, in particular, Byte-Pair-Encoding Tokenizers.
+If you weren&amp;rsquo;t already familiar with Byte-Pair-Encoding, You can check out Karpathy&amp;rsquo;s(link to karpathy BPE) video or an article I wrote a while ago👀
+Training a BPE tokenizer is a CPU and memory intensive tasks that can get out of hand pretty quickly.</description>
+    </item>
+    
+    <item>
+      <title>Learning to smell from Molecules </title>
+      <link>//localhost:1313/articles/learning_to_smell/</link>
+      <pubDate>Tue, 15 Aug 2023 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/learning_to_smell/</guid>
+      <description>The title of this post might be a little confusing but what we are really going to do is to try and build a model to classify smells from their molecular compounds. This little project intertwines the realms of chemistry and machine learning,
+Our noses have more than 400 types of olfactory receptors expressed in 1 million+ olfactory sensory neurons, which are all on a small tissue - olfactory epithelium.</description>
+    </item>
+    
+    <item>
+      <title>Semi-Supervised training with Transformers</title>
+      <link>//localhost:1313/articles/semi-supervised_training/</link>
+      <pubDate>Tue, 15 Aug 2023 04:14:46 +0100</pubDate>
+      
+      <guid>//localhost:1313/articles/semi-supervised_training/</guid>
+      <description>Finetuning Transformers for Semi-Supervised Learning on Sentiment Analysis in Yoruba. This article explores the ideas and implementation of my first research paper.</description>
     </item>
     
   </channel>

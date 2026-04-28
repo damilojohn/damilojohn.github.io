@@ -20,6 +20,8 @@ markup:
           inline:
           - - \(
             - \)
+          - - $
+            - $
         enable: true
 
 
