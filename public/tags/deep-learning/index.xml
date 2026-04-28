@@ -9,13 +9,12 @@
     <copyright>Copyright Damilola John &amp;copy; 2023</copyright>
     <lastBuildDate>Fri, 16 Jan 2026 08:25:46 +0100</lastBuildDate><atom:link href="http://localhost:1313/tags/deep-learning/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Cut Cross Entropy: 20x Memory reduction in LLM Pre-training through optimized cross entropy kernels</title>
+      <title>Cut Cross Entropy: 20x Memory reduction in LLM Pretraining through optimized cross entropy kernels</title>
       <link>http://localhost:1313/articles/cut-cross-entropy/</link>
       <pubDate>Fri, 16 Jan 2026 08:25:46 +0100</pubDate>
       
       <guid>http://localhost:1313/articles/cut-cross-entropy/</guid>
-      <description>Introduction Whilst working on pretraining SabiYarn in 2025, I came across a really interesting paper by a team at Apple called &amp;ldquo;Cut Your Losses In Large-Vocabulary Language Models&amp;rdquo;, they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes.
-Deepseek&amp;rsquo;s emergence in December 2024 marked a significant turning point in the LLM industry.</description>
+      <description>Introduction Whilst working on pretraining SabiYarn in 2025, I came across a really interesting by a team at Apple called &amp;ldquo;Cut Your Losses In Large-Vocabulary Language Models&amp;rdquo;, they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes. The paper introduces an optimised kernel for computing the cross entropy, called Cut Cross Entropy.</description>
     </item>
     
     <item>

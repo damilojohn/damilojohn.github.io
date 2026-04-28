@@ -164,7 +164,7 @@
         </span>
         <span class="flex items-center gap-1">
           <span class="material-icons text-sm">article</span>
-          3260 words
+          3259 words
         </span>
       </div>
       <div class="flex flex-wrap gap-2">
@@ -214,7 +214,8 @@
       prose-blockquote:border-l-gray-300 dark:prose-blockquote:border-l-gray-600
       prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400">
       <h1 id="introduction">Introduction</h1>
-<p>Whilst working on pretraining SabiYarn in 2025, I came across a really interesting paper by a team at Apple called &ldquo;Cut Your Losses
+<p>Whilst working on pretraining SabiYarn in 2025, I came across a really interesting <img loading="lazy" src="https://arxiv.org/abs/2411.09009" alt="paper"  />
+ by a team at Apple called &ldquo;Cut Your Losses
 In Large-Vocabulary Language Models&rdquo;, they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes. The paper introduces an optimised kernel for computing the cross entropy, called Cut Cross Entropy. Taking the Gemma 2 (2B) model as an example, CCE reduces the memory footprint of the cross entropy loss computation during training from 24 GB to 1 MB, and the total training-time memory consumption of the classifier head from 28 GB to 1 GB.</p>
 <p>Deepseek&rsquo;s emergence in December 2024 marked a significant turning point in the LLM industry. As major AI labs continued to scale model performance through ever-increasing compute budgets, DeepSeek showed that gains in performance, cost and scalability came from optimizing the whole stack, from compute kernels to optimized memory access, networking and storage.While pretraining DeepSeek V3, the team developed an open source distributed file system  3FS (Fire-Flyer- FileSystem) optimized for high throughput training, a new attention mechanism (MultiHead Latent Attention with custom kernels), a highly tuned communication library for mixture-of-experts models (Deep-EP), and Deep GEMM, an FP-8 optimized matrix multiplication kernel library.</p>
 <h2 id="a-bit-on-cross-entropy">A bit on Cross Entropy</h2>
@@ -390,111 +391,111 @@ C^\top_{x_i} E_i
 <li>We break $E$ and $C$ into tiles of size $(N_B, D_B)$ and $(N_B, D_B)$ respectively, and compute the dot product for these tiles, iterating over the <strong>D</strong> dimension of <strong>E</strong> and <strong>C</strong> and accumulating the dot product in shared memory, before writing to <strong>O</strong> in global memory.
 Here&rsquo;s my implementation:</li>
 </ul>
-<pre tabindex="0"><code>def indexed_dot_kernel(
-    E_ptr,  # Hidden states 
-    C_ptr,  # Model&#39;s Classifier weight matrix
-    x_ptr,  # target tokens
-    O_ptr,  # where are we writing dot products to?
-    N,  # sequence_length
-    D,  # Hidden_Dim
-    V,  # Vocab size
-    BLOCK_N: tl.constexpr,  # Block size across x, how many tokens is this block attending to
-    BLOCK_D: tl.constexpr,  # how much of E are we loading at once across the D dimension
-    stride_en,
-    stride_ed,
-    stride_cv,
-    stride_cd,
-):
-    pid = tl.program_id(axis=0)  # what tokens am I handling in the input sequence?
-
-    x_offsets = pid * BLOCK_N + tl.arange(0, BLOCK_N)  # computing address offsets
-    x_mask = x_offsets &lt; N
-
-    # loading token indices
-
-    x = tl.load(x_ptr + x_offsets, mask=x_mask, other=0) 
-    # temporary tensor to store dot products for NB tokens in SRAM
-    o = tl.zeros([BLOCK_N], dtype=tl.float32)
-    # reduction over D
-    for d in range(0, D, BLOCK_D):
-        d_offsets = d + tl.arange(0, BLOCK_D)
-        # loading E tile
-        e = tl.load(
-            E_ptr + x_offsets[:, None] * stride_en + d_offsets[None, :] * stride_ed,
-            mask=(x_offsets[:, None] &lt; N) &amp; (d_offsets[None, :] &lt; D),
-            other=0.0
-        )
-        # loading C tile
-        c = tl.load(
-            C_ptr + x[:, None]*stride_cv + d_offsets[None, :] * stride_cd,
-            mask=(x[:,None] &lt; V) &amp; (d_offsets[None, :] &lt; D),
-            other=0.0
-        )
-        # accumulating
-        o += tl.sum((e*c).to(tl.float32), axis=1)
-    # writing back to global memory
-    tl.store(O_ptr + x_offsets, -o, mask=x_mask)
-</code></pre><p>Each threadblock loads NB tokens, performs reduction over the D dimensions of the hidden states, and loads up tiles of $E$ and $C$, performs the dot product and accumulates the result. However, this is not efficient enough as we only parallelize of the token sequence length N, and would end up utilizing less than 60% of our Streaming Multiprocessors as <strong>D</strong> gets larger. Since we only launch $N / N_B$ threadblocks, if we had N = 2048, D = 4096, $N_B$ = 64, and BLOCK_D = 256, on an A100 with 108 Streaming Multiprocessors, our kernel launches only 32 programs (cdiv(2048, 64)), utilizing less than 30% of the GPU.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">indexed_dot_kernel</span>(
+</span></span><span style="display:flex;"><span>    E_ptr,  <span style="color:#75715e"># Hidden states </span>
+</span></span><span style="display:flex;"><span>    C_ptr,  <span style="color:#75715e"># Model&#39;s Classifier weight matrix</span>
+</span></span><span style="display:flex;"><span>    x_ptr,  <span style="color:#75715e"># target tokens</span>
+</span></span><span style="display:flex;"><span>    O_ptr,  <span style="color:#75715e"># where are we writing dot products to?</span>
+</span></span><span style="display:flex;"><span>    N,  <span style="color:#75715e"># sequence_length</span>
+</span></span><span style="display:flex;"><span>    D,  <span style="color:#75715e"># Hidden_Dim</span>
+</span></span><span style="display:flex;"><span>    V,  <span style="color:#75715e"># Vocab size</span>
+</span></span><span style="display:flex;"><span>    BLOCK_N: tl<span style="color:#f92672">.</span>constexpr,  <span style="color:#75715e"># Block size across x, how many tokens is this block attending to</span>
+</span></span><span style="display:flex;"><span>    BLOCK_D: tl<span style="color:#f92672">.</span>constexpr,  <span style="color:#75715e"># how much of E are we loading at once across the D dimension</span>
+</span></span><span style="display:flex;"><span>    stride_en,
+</span></span><span style="display:flex;"><span>    stride_ed,
+</span></span><span style="display:flex;"><span>    stride_cv,
+</span></span><span style="display:flex;"><span>    stride_cd,
+</span></span><span style="display:flex;"><span>):
+</span></span><span style="display:flex;"><span>    pid <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>program_id(axis<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>)  <span style="color:#75715e"># what tokens am I handling in the input sequence?</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    x_offsets <span style="color:#f92672">=</span> pid <span style="color:#f92672">*</span> BLOCK_N <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, BLOCK_N)  <span style="color:#75715e"># computing address offsets</span>
+</span></span><span style="display:flex;"><span>    x_mask <span style="color:#f92672">=</span> x_offsets <span style="color:#f92672">&lt;</span> N
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># loading token indices</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    x <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(x_ptr <span style="color:#f92672">+</span> x_offsets, mask<span style="color:#f92672">=</span>x_mask, other<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>) 
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># temporary tensor to store dot products for NB tokens in SRAM</span>
+</span></span><span style="display:flex;"><span>    o <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>zeros([BLOCK_N], dtype<span style="color:#f92672">=</span>tl<span style="color:#f92672">.</span>float32)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># reduction over D</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> d <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, D, BLOCK_D):
+</span></span><span style="display:flex;"><span>        d_offsets <span style="color:#f92672">=</span> d <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, BLOCK_D)
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># loading E tile</span>
+</span></span><span style="display:flex;"><span>        e <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(
+</span></span><span style="display:flex;"><span>            E_ptr <span style="color:#f92672">+</span> x_offsets[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">*</span> stride_en <span style="color:#f92672">+</span> d_offsets[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">*</span> stride_ed,
+</span></span><span style="display:flex;"><span>            mask<span style="color:#f92672">=</span>(x_offsets[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">&lt;</span> N) <span style="color:#f92672">&amp;</span> (d_offsets[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">&lt;</span> D),
+</span></span><span style="display:flex;"><span>            other<span style="color:#f92672">=</span><span style="color:#ae81ff">0.0</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># loading C tile</span>
+</span></span><span style="display:flex;"><span>        c <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(
+</span></span><span style="display:flex;"><span>            C_ptr <span style="color:#f92672">+</span> x[:, <span style="color:#66d9ef">None</span>]<span style="color:#f92672">*</span>stride_cv <span style="color:#f92672">+</span> d_offsets[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">*</span> stride_cd,
+</span></span><span style="display:flex;"><span>            mask<span style="color:#f92672">=</span>(x[:,<span style="color:#66d9ef">None</span>] <span style="color:#f92672">&lt;</span> V) <span style="color:#f92672">&amp;</span> (d_offsets[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">&lt;</span> D),
+</span></span><span style="display:flex;"><span>            other<span style="color:#f92672">=</span><span style="color:#ae81ff">0.0</span>
+</span></span><span style="display:flex;"><span>        )
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># accumulating</span>
+</span></span><span style="display:flex;"><span>        o <span style="color:#f92672">+=</span> tl<span style="color:#f92672">.</span>sum((e<span style="color:#f92672">*</span>c)<span style="color:#f92672">.</span>to(tl<span style="color:#f92672">.</span>float32), axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># writing back to global memory</span>
+</span></span><span style="display:flex;"><span>    tl<span style="color:#f92672">.</span>store(O_ptr <span style="color:#f92672">+</span> x_offsets, <span style="color:#f92672">-</span>o, mask<span style="color:#f92672">=</span>x_mask)
+</span></span></code></pre></div><p>Each threadblock loads NB tokens, performs reduction over the D dimensions of the hidden states, and loads up tiles of $E$ and $C$, performs the dot product and accumulates the result. However, this is not efficient enough as we only parallelize of the token sequence length N, and would end up utilizing less than 60% of our Streaming Multiprocessors as <strong>D</strong> gets larger. Since we only launch $N / N_B$ threadblocks, if we had N = 2048, D = 4096, $N_B$ = 64, and BLOCK_D = 256, on an A100 with 108 Streaming Multiprocessors, our kernel launches only 32 programs (cdiv(2048, 64)), utilizing less than 30% of the GPU.</p>
 <p>The official apple implementation however, parellizes over both tokens and hidden dimensions, using a 2D logical kernel grid, that saturates the GPUs Streaming Multiprocessors with enough work.</p>
-<pre tabindex="0"><code>    def _indexed_neg_dot_forward_kernel(
-        E,
-        C,
-        Inds,
-        Valids,
-        Out,
-        B,
-        D,
-        stride_eb,
-        stride_ed,
-        stride_cv,
-        stride_cd,
-        stride_ib,
-        stride_vb,
-        B_BIN,
-        BLOCK_B: tl.constexpr,
-        BLOCK_D: tl.constexpr,
-        GROUP_B: tl.constexpr,
-        HAS_VALIDS: tl.constexpr,
-        EVEN_D: tl.constexpr,
-        SHIFT: tl.constexpr,
-    ):
-        pid = tl.program_id(axis=0)
-        num_b_chunks = tl.cdiv(B, BLOCK_B)
-        num_d_chunks = tl.cdiv(D, BLOCK_D)
-        num_d_in_group = GROUP_B * num_d_chunks
-        group_id = pid // num_d_in_group
-        first_pid_b = group_id * GROUP_B
-        group_size_b = min(num_b_chunks - first_pid_b, GROUP_B)
-        pid_b = first_pid_b + ((pid % num_d_in_group) % group_size_b)
-        pid_d = (pid % num_d_in_group) // group_size_b
-
-        offs_b = (tl.arange(0, BLOCK_B) + pid_b * BLOCK_B) % B
-        if HAS_VALIDS:
-            offs_b = tl.load(Valids + stride_vb * offs_b)
-
-        offs_d = tl.arange(0, BLOCK_D) + pid_d * BLOCK_D
-        e_ptrs = E + (stride_eb * offs_b[:, None] + stride_ed * offs_d[None, :])
-        if EVEN_D:
-            e = tl.load(e_ptrs)
-        else:
-            e = tl.load(e_ptrs, mask=offs_d[None, :] &lt; D, other=0.0)
-
-        inds = tl.load(Inds + stride_ib * ((offs_b + 1) if SHIFT else offs_b))
-
-        c_ptrs = C + (inds[:, None] * stride_cv + offs_d[None, :] * stride_cd)
-        if EVEN_D:
-            c = tl.load(c_ptrs)
-        else:
-            c = tl.load(c_ptrs, mask=offs_d[None, :] &lt; D, other=0.0)
-
-        offs_b = tl.arange(0, BLOCK_B) + pid_b * BLOCK_B
-        out_ptrs = Out + offs_b
-        dot = (e * c).to(tl.float32)
-        neg_dot = -tl.sum(dot, 1).to(out_ptrs.dtype.element_ty)
-        tl.atomic_add(out_ptrs, neg_dot, mask=offs_b &lt; B)
-</code></pre><p>This way multiple thread blocks can compute over the same $E$ tile, which introduces a need to synchronize the multiple threads writing to the same address in <strong>O</strong>(minimal overhead compared to the cost of underutilizing the gpu), this synchronization is done by :</p>
-<pre tabindex="0"><code>tl.atomic_add(out_ptrs, neg_dot, mask=offs_b &lt; B)
-</code></pre><p>The second part of our equation, the Log-Sum-Exp, is also implemented using a similar approach
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_indexed_neg_dot_forward_kernel</span>(
+</span></span><span style="display:flex;"><span>        E,
+</span></span><span style="display:flex;"><span>        C,
+</span></span><span style="display:flex;"><span>        Inds,
+</span></span><span style="display:flex;"><span>        Valids,
+</span></span><span style="display:flex;"><span>        Out,
+</span></span><span style="display:flex;"><span>        B,
+</span></span><span style="display:flex;"><span>        D,
+</span></span><span style="display:flex;"><span>        stride_eb,
+</span></span><span style="display:flex;"><span>        stride_ed,
+</span></span><span style="display:flex;"><span>        stride_cv,
+</span></span><span style="display:flex;"><span>        stride_cd,
+</span></span><span style="display:flex;"><span>        stride_ib,
+</span></span><span style="display:flex;"><span>        stride_vb,
+</span></span><span style="display:flex;"><span>        B_BIN,
+</span></span><span style="display:flex;"><span>        BLOCK_B: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>        BLOCK_D: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>        GROUP_B: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>        HAS_VALIDS: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>        EVEN_D: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>        SHIFT: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>    ):
+</span></span><span style="display:flex;"><span>        pid <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>program_id(axis<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>        num_b_chunks <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>cdiv(B, BLOCK_B)
+</span></span><span style="display:flex;"><span>        num_d_chunks <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>cdiv(D, BLOCK_D)
+</span></span><span style="display:flex;"><span>        num_d_in_group <span style="color:#f92672">=</span> GROUP_B <span style="color:#f92672">*</span> num_d_chunks
+</span></span><span style="display:flex;"><span>        group_id <span style="color:#f92672">=</span> pid <span style="color:#f92672">//</span> num_d_in_group
+</span></span><span style="display:flex;"><span>        first_pid_b <span style="color:#f92672">=</span> group_id <span style="color:#f92672">*</span> GROUP_B
+</span></span><span style="display:flex;"><span>        group_size_b <span style="color:#f92672">=</span> min(num_b_chunks <span style="color:#f92672">-</span> first_pid_b, GROUP_B)
+</span></span><span style="display:flex;"><span>        pid_b <span style="color:#f92672">=</span> first_pid_b <span style="color:#f92672">+</span> ((pid <span style="color:#f92672">%</span> num_d_in_group) <span style="color:#f92672">%</span> group_size_b)
+</span></span><span style="display:flex;"><span>        pid_d <span style="color:#f92672">=</span> (pid <span style="color:#f92672">%</span> num_d_in_group) <span style="color:#f92672">//</span> group_size_b
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        offs_b <span style="color:#f92672">=</span> (tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, BLOCK_B) <span style="color:#f92672">+</span> pid_b <span style="color:#f92672">*</span> BLOCK_B) <span style="color:#f92672">%</span> B
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> HAS_VALIDS:
+</span></span><span style="display:flex;"><span>            offs_b <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(Valids <span style="color:#f92672">+</span> stride_vb <span style="color:#f92672">*</span> offs_b)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        offs_d <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, BLOCK_D) <span style="color:#f92672">+</span> pid_d <span style="color:#f92672">*</span> BLOCK_D
+</span></span><span style="display:flex;"><span>        e_ptrs <span style="color:#f92672">=</span> E <span style="color:#f92672">+</span> (stride_eb <span style="color:#f92672">*</span> offs_b[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">+</span> stride_ed <span style="color:#f92672">*</span> offs_d[<span style="color:#66d9ef">None</span>, :])
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> EVEN_D:
+</span></span><span style="display:flex;"><span>            e <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(e_ptrs)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            e <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(e_ptrs, mask<span style="color:#f92672">=</span>offs_d[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">&lt;</span> D, other<span style="color:#f92672">=</span><span style="color:#ae81ff">0.0</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        inds <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(Inds <span style="color:#f92672">+</span> stride_ib <span style="color:#f92672">*</span> ((offs_b <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">if</span> SHIFT <span style="color:#66d9ef">else</span> offs_b))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        c_ptrs <span style="color:#f92672">=</span> C <span style="color:#f92672">+</span> (inds[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">*</span> stride_cv <span style="color:#f92672">+</span> offs_d[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">*</span> stride_cd)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> EVEN_D:
+</span></span><span style="display:flex;"><span>            c <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(c_ptrs)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            c <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(c_ptrs, mask<span style="color:#f92672">=</span>offs_d[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">&lt;</span> D, other<span style="color:#f92672">=</span><span style="color:#ae81ff">0.0</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        offs_b <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, BLOCK_B) <span style="color:#f92672">+</span> pid_b <span style="color:#f92672">*</span> BLOCK_B
+</span></span><span style="display:flex;"><span>        out_ptrs <span style="color:#f92672">=</span> Out <span style="color:#f92672">+</span> offs_b
+</span></span><span style="display:flex;"><span>        dot <span style="color:#f92672">=</span> (e <span style="color:#f92672">*</span> c)<span style="color:#f92672">.</span>to(tl<span style="color:#f92672">.</span>float32)
+</span></span><span style="display:flex;"><span>        neg_dot <span style="color:#f92672">=</span> <span style="color:#f92672">-</span>tl<span style="color:#f92672">.</span>sum(dot, <span style="color:#ae81ff">1</span>)<span style="color:#f92672">.</span>to(out_ptrs<span style="color:#f92672">.</span>dtype<span style="color:#f92672">.</span>element_ty)
+</span></span><span style="display:flex;"><span>        tl<span style="color:#f92672">.</span>atomic_add(out_ptrs, neg_dot, mask<span style="color:#f92672">=</span>offs_b <span style="color:#f92672">&lt;</span> B)
+</span></span></code></pre></div><p>This way multiple thread blocks can compute over the same $E$ tile, which introduces a need to synchronize the multiple threads writing to the same address in <strong>O</strong>(minimal overhead compared to the cost of underutilizing the gpu), this synchronization is done by :</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>tl<span style="color:#f92672">.</span>atomic_add(out_ptrs, neg_dot, mask<span style="color:#f92672">=</span>offs_b <span style="color:#f92672">&lt;</span> B)
+</span></span></code></pre></div><p>The second part of our equation, the Log-Sum-Exp, is also implemented using a similar approach
 <img loading="lazy" src="/logsumexp.png" alt="Efficient Log-Sum-Exp"  />
 </p>
 <p>Again:</p>
@@ -506,95 +507,95 @@ Here&rsquo;s my implementation:</li>
 <p>We parallelize over both NB(tokens) and VB (vocab size), to avoid loading up the full C matrix into SRAM for each token.</p>
 </li>
 </ul>
-<pre tabindex="0"><code>def _cce_lse_forward_kernel(
-    E,
-    C,
-    LSE,
-    LA,
-    Locks,
-    Valids,
-    softcap,
-    B,
-    V,
-    D,
-    stride_eb,
-    stride_ed,
-    stride_cv,
-    stride_cd,
-    stride_lse_b,
-    stride_vb,
-    num_locks,
-    # Meta-parameters
-    B_BIN,
-    HAS_VALIDS: tl.constexpr,
-    BLOCK_B: tl.constexpr,
-    BLOCK_V: tl.constexpr,
-    BLOCK_D: tl.constexpr,  #
-    GROUP_B: tl.constexpr,  #
-    EVEN_D: tl.constexpr,
-    HAS_SOFTCAP: tl.constexpr,
-    HAS_LA: tl.constexpr,
-    DOT_PRECISION: tl.constexpr,
-):
-    pid = tl.program_id(axis=0)
-    num_pid_b = tl.cdiv(B, BLOCK_B)
-    num_pid_v = tl.cdiv(V, BLOCK_V)
-    num_pid_in_group = GROUP_B * num_pid_v
-    group_id = pid // num_pid_in_group
-    first_pid_b = group_id * GROUP_B
-    group_size_b = min(num_pid_b - first_pid_b, GROUP_B)
-    pid_b = first_pid_b + ((pid % num_pid_in_group) % group_size_b)
-    pid_v = (pid % num_pid_in_group) // group_size_b
-
-    offs_b = (pid_b * BLOCK_B + tl.arange(0, BLOCK_B)) % B
-    if HAS_VALIDS:
-        offs_b = tl.load(Valids + stride_vb * offs_b)
-
-    offs_v = (pid_v * BLOCK_V + tl.arange(0, BLOCK_V)) % V
-    offs_d = tl.arange(0, BLOCK_D)
-    e_ptrs = E + (offs_b[:, None] * stride_eb + offs_d[None, :] * stride_ed)
-    c_ptrs = C + (offs_v[None, :] * stride_cv + offs_d[:, None] * stride_cd)
-</code></pre><ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">_cce_lse_forward_kernel</span>(
+</span></span><span style="display:flex;"><span>    E,
+</span></span><span style="display:flex;"><span>    C,
+</span></span><span style="display:flex;"><span>    LSE,
+</span></span><span style="display:flex;"><span>    LA,
+</span></span><span style="display:flex;"><span>    Locks,
+</span></span><span style="display:flex;"><span>    Valids,
+</span></span><span style="display:flex;"><span>    softcap,
+</span></span><span style="display:flex;"><span>    B,
+</span></span><span style="display:flex;"><span>    V,
+</span></span><span style="display:flex;"><span>    D,
+</span></span><span style="display:flex;"><span>    stride_eb,
+</span></span><span style="display:flex;"><span>    stride_ed,
+</span></span><span style="display:flex;"><span>    stride_cv,
+</span></span><span style="display:flex;"><span>    stride_cd,
+</span></span><span style="display:flex;"><span>    stride_lse_b,
+</span></span><span style="display:flex;"><span>    stride_vb,
+</span></span><span style="display:flex;"><span>    num_locks,
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Meta-parameters</span>
+</span></span><span style="display:flex;"><span>    B_BIN,
+</span></span><span style="display:flex;"><span>    HAS_VALIDS: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>    BLOCK_B: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>    BLOCK_V: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>    BLOCK_D: tl<span style="color:#f92672">.</span>constexpr,  <span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span>    GROUP_B: tl<span style="color:#f92672">.</span>constexpr,  <span style="color:#75715e">#</span>
+</span></span><span style="display:flex;"><span>    EVEN_D: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>    HAS_SOFTCAP: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>    HAS_LA: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>    DOT_PRECISION: tl<span style="color:#f92672">.</span>constexpr,
+</span></span><span style="display:flex;"><span>):
+</span></span><span style="display:flex;"><span>    pid <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>program_id(axis<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>    num_pid_b <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>cdiv(B, BLOCK_B)
+</span></span><span style="display:flex;"><span>    num_pid_v <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>cdiv(V, BLOCK_V)
+</span></span><span style="display:flex;"><span>    num_pid_in_group <span style="color:#f92672">=</span> GROUP_B <span style="color:#f92672">*</span> num_pid_v
+</span></span><span style="display:flex;"><span>    group_id <span style="color:#f92672">=</span> pid <span style="color:#f92672">//</span> num_pid_in_group
+</span></span><span style="display:flex;"><span>    first_pid_b <span style="color:#f92672">=</span> group_id <span style="color:#f92672">*</span> GROUP_B
+</span></span><span style="display:flex;"><span>    group_size_b <span style="color:#f92672">=</span> min(num_pid_b <span style="color:#f92672">-</span> first_pid_b, GROUP_B)
+</span></span><span style="display:flex;"><span>    pid_b <span style="color:#f92672">=</span> first_pid_b <span style="color:#f92672">+</span> ((pid <span style="color:#f92672">%</span> num_pid_in_group) <span style="color:#f92672">%</span> group_size_b)
+</span></span><span style="display:flex;"><span>    pid_v <span style="color:#f92672">=</span> (pid <span style="color:#f92672">%</span> num_pid_in_group) <span style="color:#f92672">//</span> group_size_b
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    offs_b <span style="color:#f92672">=</span> (pid_b <span style="color:#f92672">*</span> BLOCK_B <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, BLOCK_B)) <span style="color:#f92672">%</span> B
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> HAS_VALIDS:
+</span></span><span style="display:flex;"><span>        offs_b <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(Valids <span style="color:#f92672">+</span> stride_vb <span style="color:#f92672">*</span> offs_b)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    offs_v <span style="color:#f92672">=</span> (pid_v <span style="color:#f92672">*</span> BLOCK_V <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, BLOCK_V)) <span style="color:#f92672">%</span> V
+</span></span><span style="display:flex;"><span>    offs_d <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>arange(<span style="color:#ae81ff">0</span>, BLOCK_D)
+</span></span><span style="display:flex;"><span>    e_ptrs <span style="color:#f92672">=</span> E <span style="color:#f92672">+</span> (offs_b[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">*</span> stride_eb <span style="color:#f92672">+</span> offs_d[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">*</span> stride_ed)
+</span></span><span style="display:flex;"><span>    c_ptrs <span style="color:#f92672">=</span> C <span style="color:#f92672">+</span> (offs_v[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">*</span> stride_cv <span style="color:#f92672">+</span> offs_d[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">*</span> stride_cd)
+</span></span></code></pre></div><ul>
 <li>We use reduction to avoid loading up either E or C across the entire D Dimension, so we only ever load $E(N_B, D_B)$ and $C(V_B, D_B)$ at any point in time, accumulating the dot products in $\text{accum}$ in shared memory. $\text{accum}$ now contains partial logits for the $N_B$ token in this program, since it was computed from $E(N_B, D)$ and $C(D, V_B)$, and not the full $C(D, V)$</li>
 </ul>
-<pre tabindex="0"><code>    accum = tl.zeros((BLOCK_B, BLOCK_V), dtype=tl.float32)
-    for d in range(0, tl.cdiv(D, BLOCK_D)):
-        # Load the next block of E and C, generate a mask by checking the K dimension.
-        # If it is out of bounds, set it to 0.
-        if EVEN_D:
-            e = tl.load(e_ptrs)
-            c = tl.load(c_ptrs)
-        else:
-            e = tl.load(e_ptrs, mask=offs_d[None, :] &lt; D - d * BLOCK_D, other=0.0)
-            c = tl.load(c_ptrs, mask=offs_d[:, None] &lt; D - d * BLOCK_D, other=0.0)
-        accum = tl.dot(e, c, accum, input_precision=DOT_PRECISION)
-        e_ptrs += BLOCK_D * stride_ed
-        c_ptrs += BLOCK_D * stride_cd
-</code></pre><ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    accum <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>zeros((BLOCK_B, BLOCK_V), dtype<span style="color:#f92672">=</span>tl<span style="color:#f92672">.</span>float32)
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> d <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">0</span>, tl<span style="color:#f92672">.</span>cdiv(D, BLOCK_D)):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># Load the next block of E and C, generate a mask by checking the K dimension.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># If it is out of bounds, set it to 0.</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> EVEN_D:
+</span></span><span style="display:flex;"><span>            e <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(e_ptrs)
+</span></span><span style="display:flex;"><span>            c <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(c_ptrs)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>            e <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(e_ptrs, mask<span style="color:#f92672">=</span>offs_d[<span style="color:#66d9ef">None</span>, :] <span style="color:#f92672">&lt;</span> D <span style="color:#f92672">-</span> d <span style="color:#f92672">*</span> BLOCK_D, other<span style="color:#f92672">=</span><span style="color:#ae81ff">0.0</span>)
+</span></span><span style="display:flex;"><span>            c <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(c_ptrs, mask<span style="color:#f92672">=</span>offs_d[:, <span style="color:#66d9ef">None</span>] <span style="color:#f92672">&lt;</span> D <span style="color:#f92672">-</span> d <span style="color:#f92672">*</span> BLOCK_D, other<span style="color:#f92672">=</span><span style="color:#ae81ff">0.0</span>)
+</span></span><span style="display:flex;"><span>        accum <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>dot(e, c, accum, input_precision<span style="color:#f92672">=</span>DOT_PRECISION)
+</span></span><span style="display:flex;"><span>        e_ptrs <span style="color:#f92672">+=</span> BLOCK_D <span style="color:#f92672">*</span> stride_ed
+</span></span><span style="display:flex;"><span>        c_ptrs <span style="color:#f92672">+=</span> BLOCK_D <span style="color:#f92672">*</span> stride_cd
+</span></span></code></pre></div><ul>
 <li>The log sum exp over the partial logits is now computed by finding the max of the logits over this $V_B$ block, substracting it from all logits, calculate the exponent of the sums, the log of the exponent, and then sum back the max to the log.</li>
 </ul>
-<pre tabindex="0"><code>    this_mx = tl.max(logits, axis=1)
-    e = tl.exp(logits - this_mx[:, None])
-    this_lse = this_mx + tl.log(tl.sum(e, axis=1))
-</code></pre><ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    this_mx <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>max(logits, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>)
+</span></span><span style="display:flex;"><span>    e <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>exp(logits <span style="color:#f92672">-</span> this_mx[:, <span style="color:#66d9ef">None</span>])
+</span></span><span style="display:flex;"><span>    this_lse <span style="color:#f92672">=</span> this_mx <span style="color:#f92672">+</span> tl<span style="color:#f92672">.</span>log(tl<span style="color:#f92672">.</span>sum(e, axis<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>))
+</span></span></code></pre></div><ul>
 <li>Remember, we only have computed partial logits of size $(N_B, V_B)$ at this point, since each thread block computes the logits over a $V_B$ portion of the model&rsquo;s vocabulary. $\text{this\_lse}$ holds the log-sum-exp for the partial logits of a particular thread block, which is not the full value we need. However, at this point, other programs with the same $\text{pid\_b}$ (handling the same token block), and different values for $\text{pid\_v}$, would have calculated their $\text{this\_lse}$ values for the other $(V_B)$ blocks in V, we need to find a way to sum these values without introducing race conditions across threadblocks.</li>
 </ul>
-<pre tabindex="0"><code>    lse_ptrs = LSE + (stride_lse_b * off_b)
-
-    this_locks = Locks + (pid_b // tl.cdiv(B, BLOCK_B * num_locks))
-    while tl.atomic_cas(this_locks, 0, 1) == 1:
-        pass
-    lse = tl.load(lse_ptrs, mask=o_mask, other=0.0, eviction_policy=&#34;evict_last&#34;)
-</code></pre><ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    lse_ptrs <span style="color:#f92672">=</span> LSE <span style="color:#f92672">+</span> (stride_lse_b <span style="color:#f92672">*</span> off_b)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    this_locks <span style="color:#f92672">=</span> Locks <span style="color:#f92672">+</span> (pid_b <span style="color:#f92672">//</span> tl<span style="color:#f92672">.</span>cdiv(B, BLOCK_B <span style="color:#f92672">*</span> num_locks))
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> tl<span style="color:#f92672">.</span>atomic_cas(this_locks, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">pass</span>
+</span></span><span style="display:flex;"><span>    lse <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(lse_ptrs, mask<span style="color:#f92672">=</span>o_mask, other<span style="color:#f92672">=</span><span style="color:#ae81ff">0.0</span>, eviction_policy<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;evict_last&#34;</span>)
+</span></span></code></pre></div><ul>
 <li>The total log-sum-exp are stored at $\text{LSE}$, however since multiple thread blocks with the same $\text{pid\_b}$ will write to the same address in $\text{LSE}$, a spin atomic lock is used to prevent race conditions, and the current program holding the lock loads the current value for $\text{LSE}$ into it&rsquo;s shared memory, adds it to it&rsquo;s partial logits in <strong>this_lse</strong> with the <strong>logaddexp</strong> function, and writes the new computed $\text{LSE}$ value back to <strong>LSE</strong> in global memory before releasing the lock for other threads.</li>
 </ul>
-<pre tabindex="0"><code>
-    lse = tl.load(lse_ptrs, mask=o_mask, other=0.0, eviction_policy=&#34;evict_last&#34;)
-    lse = tl_logaddexp(lse, this_lse)
-    tl.store(lse_ptrs, lse, mask=o_mask, eviction_policy=&#34;evict_last&#34;)
-
-    tl.atomic_xchg(this_locks, 0)
-</code></pre><ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    lse <span style="color:#f92672">=</span> tl<span style="color:#f92672">.</span>load(lse_ptrs, mask<span style="color:#f92672">=</span>o_mask, other<span style="color:#f92672">=</span><span style="color:#ae81ff">0.0</span>, eviction_policy<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;evict_last&#34;</span>)
+</span></span><span style="display:flex;"><span>    lse <span style="color:#f92672">=</span> tl_logaddexp(lse, this_lse)
+</span></span><span style="display:flex;"><span>    tl<span style="color:#f92672">.</span>store(lse_ptrs, lse, mask<span style="color:#f92672">=</span>o_mask, eviction_policy<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;evict_last&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    tl<span style="color:#f92672">.</span>atomic_xchg(this_locks, <span style="color:#ae81ff">0</span>)
+</span></span></code></pre></div><ul>
 <li>
 <p>We can add multiple partial log-sum-exps in this manner because :
 </p>
