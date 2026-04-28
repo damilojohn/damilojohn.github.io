@@ -1,36 +1,91 @@
 <!DOCTYPE html>
-<html lang="en" dir="auto">
-
-<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="noindex, nofollow">
-<title>Cut Cross Entropy: 20x Memory reduction in LLM Pre-training through optimized cross entropy kernels | Home</title>
-<meta name="keywords" content="Transformers, Deep Learning, LLMs">
-<meta name="description" content="Introduction Whilst working on pretraining SabiYarn in 2025, I came across a really interesting paper by a team at Apple called &ldquo;Cut Your Losses In Large-Vocabulary Language Models&rdquo;, they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes.
-Deepseek&rsquo;s emergence in December 2024 marked a significant turning point in the LLM industry.">
-<meta name="author" content="Damilola John">
-<link rel="canonical" href="//localhost:1313/articles/cut-cross-entropy/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.51ae2dfd23423d479cfd90ba4215aeebadfd8c0833c61a978bfbc8648cc56365.css" integrity="sha256-Ua4t/SNCPUec/ZC6QhWu6639jAgzxhqXi/vIZIzFY2U=" rel="preload stylesheet" as="style">
-<script defer crossorigin="anonymous" src="/assets/js/highlight.acb54fd32bbc1982428b8850317e45d076b95012730a5936667e6bc21777692a.js" integrity="sha256-rLVP0yu8GYJCi4hQMX5F0Ha5UBJzClk2Zn5rwhd3aSo="
-    onload="hljs.initHighlightingOnLoad();"></script>
-<link rel="icon" href="//localhost:1313/static/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="//localhost:1313/static/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="//localhost:1313/static/favicon-32x32.png">
-<link rel="apple-touch-icon" href="//localhost:1313/static/apple-touch-icon.png">
-<link rel="mask-icon" href="//localhost:1313/safari-pinned-tab.svg">
-<meta name="theme-color" content="#2e2e33">
-<meta name="msapplication-TileColor" content="#2e2e33">
-<link rel="alternate" hreflang="en" href="//localhost:1313/articles/cut-cross-entropy/">
-<noscript>
-    <style>
-        #theme-toggle,
-        .top-link {
-            display: none;
-        }
-
-    </style>
-</noscript><link rel="stylesheet" href="/css/custom-effects.css">
+<html lang="en">
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cut Cross Entropy: 20x Memory reduction in LLM Pretraining through optimized cross entropy kernels | Damilola John</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"/>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" onload="hljs.highlightAll()"></script>
+<script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    primary: "#18181b",
+                    "background-light": "#ffffff",
+                    "background-dark": "#18181b",
+                    "text-light": "#27272a",
+                    "text-dark": "#e4e4e7",
+                    "accent-light": "#52525b",
+                    "accent-dark": "#a1a1aa",
+                },
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                    serif: ['Merriweather', 'serif'],
+                },
+                typography: (theme) => ({
+                    DEFAULT: {
+                        css: {
+                            color: theme('colors.zinc.700'),
+                            a: { color: theme('colors.zinc.900'), textDecoration: 'underline' },
+                            'h1,h2,h3,h4': { color: theme('colors.zinc.900'), fontFamily: 'Inter, sans-serif' },
+                            code: { color: theme('colors.zinc.800'), backgroundColor: theme('colors.zinc.100'), borderRadius: '0.25rem', padding: '0.1em 0.3em', fontWeight: '400' },
+                            'code::before': { content: '""' },
+                            'code::after': { content: '""' },
+                            pre: { backgroundColor: '#0d1117', color: '#e6edf3', padding: '1.25rem', borderRadius: '0.5rem' },
+                            'pre code': { backgroundColor: 'transparent', color: 'inherit', padding: '0' },
+                        },
+                    },
+                    invert: {
+                        css: {
+                            color: theme('colors.zinc.300'),
+                            a: { color: theme('colors.white') },
+                            'h1,h2,h3,h4': { color: theme('colors.white') },
+                            code: { color: theme('colors.zinc.200'), backgroundColor: theme('colors.zinc.800') },
+                            pre: { backgroundColor: '#0d1117' },
+                        },
+                    },
+                }),
+            },
+        },
+    };
+</script>
+<style>
+    .nav-link {
+        position: relative;
+    }
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        transform: scaleX(0);
+        height: 2px;
+        bottom: -2px;
+        left: 0;
+        background-color: currentColor;
+        transform-origin: bottom right;
+        transition: transform 0.25s ease-out;
+    }
+    .nav-link:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+    }
+    .nav-link.active::after {
+        transform: scaleX(1);
+    }
+    .mobile-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+    }
+    .mobile-menu.open {
+        max-height: 500px;
+    }
+</style><link rel="stylesheet" href="/css/custom-effects.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous"></script>
@@ -48,135 +103,123 @@ Deepseek&rsquo;s emergence in December 2024 marked a significant turning point i
   });
 </script>
 
-<script src="/js/custom-effects.js" defer></script>
-</head>
+<script src="/js/custom-effects.js" defer></script></head>
 
-<body class="" id="top">
-<script>
-    if (localStorage.getItem("pref-theme") === "dark") {
-        document.body.classList.add('dark');
-    }
+<body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark transition-colors duration-300 antialiased min-h-screen flex flex-col font-sans">
 
-</script>
-
-<header class="header">
-    <nav class="nav">
-        <div class="logo">
-            <a href="//localhost:1313/" accesskey="h" title="Home (Alt + H)">Home</a>
-            <div class="logo-switches">
-                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
-                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </button>
-                <ul class="lang-switch"><li>|</li>
-                </ul>
-            </div>
-        </div>
-        <ul id="menu">
-            <li>
-                <a href="//localhost:1313/about" title="About Me">
-                    <span>About Me</span>
-                </a>
-            </li>
-            <li>
-                <a href="//localhost:1313/projects/" title="Projects">
-                    <span>Projects</span>
-                </a>
-            </li>
-            <li>
-                <a href="//localhost:1313/articles/" title="Articles">
-                    <span>Articles</span>
-                </a>
-            </li>
-            <li>
-                <a href="//localhost:1313/archives/" title="Archives">
-                    <span>Archives</span>
-                </a>
-            </li>
-            <li>
-                <a href="//localhost:1313/categories/" title="Categories">
-                    <span>Categories</span>
-                </a>
-            </li>
-        </ul>
+<header class="w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+  <div class="flex justify-between items-center">
+    <div class="flex items-center gap-3 sm:gap-4">
+      <a href="/" class="text-lg sm:text-xl font-bold tracking-tight hover:opacity-70 transition-opacity">Home</a>
+      <button class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" onclick="document.documentElement.classList.toggle('dark')" aria-label="Toggle dark mode">
+        <span class="material-icons text-xl align-middle text-gray-600 dark:text-gray-300">dark_mode</span>
+      </button>
+      <span class="text-gray-300 dark:text-gray-600 font-light hidden sm:inline">|</span>
+    </div>
+    <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 dark:text-gray-300">
+      <a class="nav-link hover:text-black dark:hover:text-white transition-colors" href="/about">About Me</a>
+      <a class="nav-link hover:text-black dark:hover:text-white transition-colors" href="/projects">Projects</a>
+      <a class="nav-link active text-black dark:text-white" href="/articles">Articles</a>
+      <a class="nav-link hover:text-black dark:hover:text-white transition-colors" href="/archives">Archives</a>
+      <a class="nav-link hover:text-black dark:hover:text-white transition-colors" href="/categories">Categories</a>
     </nav>
+    <button class="md:hidden p-2 text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 rounded" onclick="toggleMobileMenu()" aria-label="Toggle menu" aria-expanded="false" id="mobile-menu-button">
+      <span class="material-icons" id="menu-icon">menu</span>
+    </button>
+  </div>
+  <nav class="mobile-menu md:hidden mt-4" id="mobile-nav">
+    <div class="flex flex-col gap-4 text-sm font-medium text-gray-600 dark:text-gray-300 border-t border-gray-200 dark:border-gray-800 pt-4">
+      <a class="nav-link hover:text-black dark:hover:text-white transition-colors py-2" href="/about" onclick="closeMobileMenu()">About Me</a>
+      <a class="nav-link hover:text-black dark:hover:text-white transition-colors py-2" href="/projects" onclick="closeMobileMenu()">Projects</a>
+      <a class="nav-link active text-black dark:text-white py-2" href="/articles" onclick="closeMobileMenu()">Articles</a>
+      <a class="nav-link hover:text-black dark:hover:text-white transition-colors py-2" href="/archives" onclick="closeMobileMenu()">Archives</a>
+      <a class="nav-link hover:text-black dark:hover:text-white transition-colors py-2" href="/categories" onclick="closeMobileMenu()">Categories</a>
+    </div>
+  </nav>
 </header>
-<main class="main">
 
-<article class="post-single">
-  <header class="post-header">
-    <div class="breadcrumbs"><a href="//localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="//localhost:1313/articles/">Articles</a></div>
-    <h1 class="post-title">
-      Cut Cross Entropy: 20x Memory reduction in LLM Pre-training through optimized cross entropy kernels
-    </h1>
-    <div class="post-meta"><span title='2026-01-16 08:25:46 +0100 WAT'>January 16, 2026</span>&nbsp;·&nbsp;15 min&nbsp;·&nbsp;3008 words&nbsp;·&nbsp;Damilola John
+<main class="flex-grow w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <nav class="text-xs text-gray-400 dark:text-gray-500 mb-8 flex items-center gap-1.5">
+    <a href="/" class="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Home</a>
+    <span class="material-icons text-xs">chevron_right</span>
+    <a href="/articles" class="hover:text-gray-700 dark:hover:text-gray-300 transition-colors">Articles</a>
+    <span class="material-icons text-xs">chevron_right</span>
+    <span class="text-gray-600 dark:text-gray-400 truncate max-w-xs">Cut Cross Entropy: 20x Memory reduction in LLM Pretraining through optimized cross entropy kernels</span>
+  </nav>
 
-</div>
-  </header> 
-<figure class="entry-cover"><img loading="lazy" src="//localhost:1313/cce.png" alt="Cross Entropy">
-        
-</figure><div class="toc">
-    <details >
-        <summary accesskey="c" title="(Alt + C)">
-            <span class="details">Table of Contents</span>
-        </summary>
+  <article>
+    <header class="mb-8 sm:mb-12">
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6 text-gray-900 dark:text-white">
+        Cut Cross Entropy: 20x Memory reduction in LLM Pretraining through optimized cross entropy kernels
+      </h1>
 
-        <div class="inner"><ul>
-                <li>
-                    <a href="#introduction" aria-label="Introduction">Introduction</a><ul>
-                        
-                <li>
-                    <a href="#a-bit-on-cross-entropy" aria-label="A bit on Cross Entropy">A bit on Cross Entropy</a></li></ul>
-                </li>
-                <li>
-                    <a href="#llm-pretraining" aria-label="LLM Pretraining">LLM Pretraining</a><ul>
-                        
-                <li>
-                    <a href="#the-memory-problem" aria-label="The Memory Problem">The Memory Problem</a></li>
-                <li>
-                    <a href="#cut-cross-entropy" aria-label="Cut Cross Entropy">Cut Cross Entropy</a><ul>
-                        
-                <li>
-                    <a href="#forward-pass-kernels" aria-label="Forward Pass Kernels">Forward Pass Kernels</a><ul>
-                        
-                <li>
-                    <a href="#indexed-negative-dot-product" aria-label="Indexed Negative Dot Product">Indexed Negative Dot Product</a></li></ul>
-                </li>
-                <li>
-                    <a href="#backward-pass" aria-label="Backward Pass">Backward Pass</a>
-                </li>
-            </ul>
-            </li>
-            </ul>
-            </li>
-            </ul>
-        </div>
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 dark:text-gray-400 mb-6">
+        <span class="flex items-center gap-1">
+          <span class="material-icons text-sm">calendar_today</span>
+          <time datetime="2026-01-16">January 16, 2026</time>
+        </span>
+        <span class="flex items-center gap-1">
+          <span class="material-icons text-sm">schedule</span>
+          16 min read
+        </span>
+        <span class="flex items-center gap-1">
+          <span class="material-icons text-sm">article</span>
+          3260 words
+        </span>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a href="http://localhost:1313/tags/transformers/" class="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          Transformers
+        </a>
+        <a href="http://localhost:1313/tags/deep-learning/" class="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          Deep Learning
+        </a>
+        <a href="http://localhost:1313/tags/llms/" class="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          LLMs
+        </a>
+      </div>
+    </header>
+    <div class="mb-10 sm:mb-14 -mx-4 sm:mx-0">
+      <img src="/cce.png" alt="Cross Entropy" class="w-full sm:rounded-lg object-cover max-h-96"/>
+    </div>
+    <details class="mb-10 border border-gray-200 dark:border-gray-800 rounded-lg" open>
+      <summary class="px-4 py-3 text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 cursor-pointer select-none">
+        Table of Contents
+      </summary>
+      <div class="px-4 pb-4 pt-2 text-sm text-gray-600 dark:text-gray-400 [&_ul]:space-y-1 [&_a]:hover:text-gray-900 [&_a]:dark:hover:text-white [&_a]:transition-colors [&_ul_ul]:pl-4 [&_ul_ul]:mt-1">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#a-bit-on-cross-entropy">A bit on Cross Entropy</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#the-memory-problem">The Memory Problem</a></li>
+    <li><a href="#cut-cross-entropy">Cut Cross Entropy</a>
+      <ul>
+        <li><a href="#forward-pass-kernels">Forward Pass Kernels</a></li>
+        <li><a href="#backward-pass">Backward Pass</a></li>
+        <li><a href="#sample-training-run">Sample Training Run</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </div>
     </details>
-</div>
-
-  <div class="post-content"><h1 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h1>
+    <div class="prose dark:prose-invert max-w-none
+      prose-headings:font-sans prose-headings:tracking-tight
+      prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl
+      prose-h2:border-b prose-h2:border-gray-200 prose-h2:dark:border-gray-800 prose-h2:pb-2
+      prose-img:rounded-lg prose-img:mx-auto
+      prose-a:text-gray-900 dark:prose-a:text-white prose-a:underline-offset-2
+      prose-blockquote:border-l-gray-300 dark:prose-blockquote:border-l-gray-600
+      prose-blockquote:text-gray-600 dark:prose-blockquote:text-gray-400">
+      <h1 id="introduction">Introduction</h1>
 <p>Whilst working on pretraining SabiYarn in 2025, I came across a really interesting paper by a team at Apple called &ldquo;Cut Your Losses
-In Large-Vocabulary Language Models&rdquo;, they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes.</p>
+In Large-Vocabulary Language Models&rdquo;, they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes. The paper introduces an optimised kernel for computing the cross entropy, called Cut Cross Entropy. Taking the Gemma 2 (2B) model as an example, CCE reduces the memory footprint of the cross entropy loss computation during training from 24 GB to 1 MB, and the total training-time memory consumption of the classifier head from 28 GB to 1 GB.</p>
 <p>Deepseek&rsquo;s emergence in December 2024 marked a significant turning point in the LLM industry. As major AI labs continued to scale model performance through ever-increasing compute budgets, DeepSeek showed that gains in performance, cost and scalability came from optimizing the whole stack, from compute kernels to optimized memory access, networking and storage.While pretraining DeepSeek V3, the team developed an open source distributed file system  3FS (Fire-Flyer- FileSystem) optimized for high throughput training, a new attention mechanism (MultiHead Latent Attention with custom kernels), a highly tuned communication library for mixture-of-experts models (Deep-EP), and Deep GEMM, an FP-8 optimized matrix multiplication kernel library.</p>
-<h2 id="a-bit-on-cross-entropy">A bit on Cross Entropy<a hidden class="anchor" aria-hidden="true" href="#a-bit-on-cross-entropy">#</a></h2>
-<p>Cross Entropy originates from information theory, and is a function that measures the difference between two probability distributions. In Machine Learning, the Cross Entropy Loss function is used in calculating the loss between a model&rsquo;s predicted probabilities and the dataset&rsquo;s true value.</p>
-<h1 id="llm-pretraining">LLM Pretraining<a hidden class="anchor" aria-hidden="true" href="#llm-pretraining">#</a></h1>
+<h2 id="a-bit-on-cross-entropy">A bit on Cross Entropy</h2>
+<p>Cross Entropy originates from information theory, and is a function that measures the difference between two probability distributions. In machine learning, the Cross Entropy loss function is used in calculating the loss between a model&rsquo;s predicted probabilities and the dataset&rsquo;s true value.</p>
+<h1 id="llm-pretraining">LLM Pretraining</h1>
 <p>Large language models are trained by autoregressively predicting the next token in a dataset, this dataset could vary from the entire internet, scientific texts and literature, textbooks etc in large scale pretraining, to smaller datasets on specific niches or domains as in model fine-tuning.</p>
 <p>Given a sequence with N-1 tokens, a large language model can be defined as :</p>
 \[
@@ -223,7 +266,7 @@ P(x_i | x_1 \ldots x_{i-1}) = \text{softmax}_{x_i}(C^\top f(x_1 \ldots x_{i-1}))
 <p>we have our input tensor x with shape:
 [8, 2048].</p>
 <p>Thus our model takes 8 sequence with 2048 tokens each as input.</p>
-<p>After a forward pass through the model, the backbone network (transformer layers) generates an embedding matrix E of shape:</p>
+<p>After a forward pass through the model, the backbone network (transformer layers) generates an embedding matrix $E$ of shape:</p>
 \[    
 B, S, D
 \]
@@ -233,7 +276,7 @@ S = Sequence Length (2048)
 D = Hidden Dimension</p>
 <p>D represents the size of our embedding vectors.
 Essentially every token in the batch gets an embedding vector computed.</p>
-<p>Note: E is computed in parallel for all tokens, thanks to teacher forcing, the parallel nature of the transformer layers (self-attention) and broadcasting in modern deep learning frameworks like PyTorch.</p>
+<p>Note: $E$ is computed in parallel for all tokens, thanks to teacher forcing, the parallel nature of the transformer layers (self-attention) and broadcasting in modern deep learning frameworks like PyTorch.</p>
 <p>These embeddings are then passed through the Classifier C⊤, to generate the logits. These logits are of shape:</p>
 \[
 B, S, V
@@ -241,7 +284,7 @@ B, S, V
 <p>where V = Vocabulary Size</p>
 <p>Thus for every token, we predict the log probabilities for every token in the model&rsquo;s vocab. This is also done in parallel.</p>
 <p>As mentioned earlier, the Logits are then used to generate the probability distribution, used in computing the cross entropy loss.</p>
-<h2 id="the-memory-problem">The Memory Problem<a hidden class="anchor" aria-hidden="true" href="#the-memory-problem">#</a></h2>
+<h2 id="the-memory-problem">The Memory Problem</h2>
 <p>At inference, sampling from the model&rsquo;s predicted probabilities is efficient for any token regardless of its position in the sequence, since the model produces one token at a time at each step using the hidden state E of the last token in the sequence.</p>
 <p>At Training, for a sequence</p>
 \[
@@ -262,7 +305,7 @@ are also computed in parallel. However, extra memory is required for saving the 
 \[
 \ell_i(x) = - \log(\text{softmax}_{x_i}(C^\top E_i))
 \]
-<p>C⊤ and E maintain their notation as the Classifier and Embedding matrices.</p>
+<p>$C^\top_{x_i}$ and $E$ maintain their notation as the Classifier and Embedding matrices.</p>
 <p>we know the softmax function to be:</p>
 \[
 \frac{\exp(C^\top_{x_i} E_i)}{\sum_j \exp(C^\top_j E_i)}
@@ -310,7 +353,11 @@ C^\top_{x_i} E_i
 \[\sum_j \exp(C^\top_j E_i)\]
 </li>
 <li>
-<p>finally, we take the log of the sums</p>
+<p>finally, we take the log of the sums to get back:
+</p>
+\[
+\log \sum_j \exp(C^\top_j E_i)
+\]
 </li>
 </ul>
 <p>Each of these steps requires an intermediary tensor of size $ B, S, V$ in global memory.</p>
@@ -319,9 +366,9 @@ C^\top_{x_i} E_i
 8*80000*256128*2 = 256gb
 \]
 <p>about 256gb of memory, spent just computing the cross entropy loss, accounting for over 90% of the total memory use in training.</p>
-<h2 id="cut-cross-entropy">Cut Cross Entropy<a hidden class="anchor" aria-hidden="true" href="#cut-cross-entropy">#</a></h2>
+<h2 id="cut-cross-entropy">Cut Cross Entropy</h2>
 <p>Cut Cross Entropy paper approaches this problem by implementing efficient forward and backward passes using custom fused triton kernels, implementing ideas like tiling and indexed loads, together with the reformulation above. This approach ensures that only small chunks of E and C are loaded into the fast GPU shared memory, and by parallelizing across thread blocks, we don&rsquo;t incure any meaningful latency overheads.</p>
-<h3 id="forward-pass-kernels">Forward Pass Kernels<a hidden class="anchor" aria-hidden="true" href="#forward-pass-kernels">#</a></h3>
+<h3 id="forward-pass-kernels">Forward Pass Kernels</h3>
 <p>Since we already reformulated the cross entropy loss as:</p>
 \[
 \ell_i(x) = - C^\top_{x_i} E_i + \log \sum_j \exp(C^\top_j E_i)
@@ -331,19 +378,18 @@ C^\top_{x_i} E_i
 <li>An indexed Negative Dot Product</li>
 <li>The Log Sum Exp</li>
 </ul>
-<h4 id="indexed-negative-dot-product">Indexed Negative Dot Product<a hidden class="anchor" aria-hidden="true" href="#indexed-negative-dot-product">#</a></h4>
-<p>A naive computation of the indexed matrix multiplication involves either indexing the classifier weight matrix ($C^\top$) with a memory cost of <strong>O(ND)</strong> , and then performing the dot product, or computing $\left(C^\top E_i\right)$ which materializes the logits for every token and then indexing into the result to get the logit for the target class, with an $O(N|V|)$ memory cost.</p>
-<p>Cut Cross Entropy uses a different approach,</p>
+<h4 id="indexed-negative-dot-product">Indexed Negative Dot Product</h4>
+<p>A naive computation of the indexed matrix multiplication involves either indexing the classifier weight matrix ($C^\top$) with a memory cost of $ O(ND) $ , and then performing the dot product, or computing $\left(C^\top_{x_i} E_i\right)$ which materializes the logits for every token and then indexing into the result to get the logit for the target class, with an $O(N|V|)$ memory cost.</p>
+<p>Cut Cross Entropy uses a tiled approach,</p>
 <p><img loading="lazy" src="/indexed_mat_mul.png" alt="Indexed Matrix Multiplication"  />
 </p>
-<p>The algorithm above can be simply summarized as:</p>
 <ul>
-<li>Each thread block computes  <strong>NB</strong> dot products for <strong>NB</strong> tokens from the input sequence and writes them to <strong>O</strong>.</li>
-<li>For a token position $i$ in the input sequence, to compute C^T X E, we need to load $x_i$ (the actual token value), $E_i$ and $C_{x_i}$ into the shared memory (SRAM) of our threadgroup.</li>
-<li>Since we have limited shared memory, we can&rsquo;t load the full hidden states $E(N_B, D)$ and $C(N_B, D)$</li>
-<li>We break $E$ and $C$ into tiles of size $(N_B, D_B)$ and $(N_B, D_B)$ respectively, and compute the dot product for these tiles, iterating over the <strong>D</strong> dimension of E and C and accumulating the scores in shared memory, before writing to <strong>O</strong> in global memory.</li>
+<li>Each thread block computes  $N_B$ dot products for $N_B$ tokens from the input sequence and writes them to <strong>O</strong> in global memory.</li>
+<li>For a token position $i$ in the input sequence, to compute $\left(C^\top E_i\right)$, we only load $x_i$ (the actual token value), $E_i$ and $C_{x_i}$ into the shared memory (SRAM) of our threadgroup.</li>
+<li>Since we have limited shared memory, we can&rsquo;t load the full hidden states $E(N_B, D)$ and $C(N_B, D)$, that we need to calculate the dot product for the $N_B$ tokens.</li>
+<li>We break $E$ and $C$ into tiles of size $(N_B, D_B)$ and $(N_B, D_B)$ respectively, and compute the dot product for these tiles, iterating over the <strong>D</strong> dimension of <strong>E</strong> and <strong>C</strong> and accumulating the dot product in shared memory, before writing to <strong>O</strong> in global memory.
+Here&rsquo;s my implementation:</li>
 </ul>
-<p>Here&rsquo;s my implementation:</p>
 <pre tabindex="0"><code>def indexed_dot_kernel(
     E_ptr,  # Hidden states 
     C_ptr,  # Model&#39;s Classifier weight matrix
@@ -388,8 +434,8 @@ C^\top_{x_i} E_i
         o += tl.sum((e*c).to(tl.float32), axis=1)
     # writing back to global memory
     tl.store(O_ptr + x_offsets, -o, mask=x_mask)
-</code></pre><p>Each threadblock loads NB tokens, performs reduction over the D dimensions of the hidden states, and loads up tiles of $E$ and $C$, performs the dot product and accumulates the result. However, this is not efficient enough as we only parallelize of the token sequence length N, and would end up utilizing less than 60% of our Streaming Multiprocessors in most cases.</p>
-<p>The official apple implementation however, parellizes over both tokens and hidden dimensions, using a 2d logical kernel grid.</p>
+</code></pre><p>Each threadblock loads NB tokens, performs reduction over the D dimensions of the hidden states, and loads up tiles of $E$ and $C$, performs the dot product and accumulates the result. However, this is not efficient enough as we only parallelize of the token sequence length N, and would end up utilizing less than 60% of our Streaming Multiprocessors as <strong>D</strong> gets larger. Since we only launch $N / N_B$ threadblocks, if we had N = 2048, D = 4096, $N_B$ = 64, and BLOCK_D = 256, on an A100 with 108 Streaming Multiprocessors, our kernel launches only 32 programs (cdiv(2048, 64)), utilizing less than 30% of the GPU.</p>
+<p>The official apple implementation however, parellizes over both tokens and hidden dimensions, using a 2D logical kernel grid, that saturates the GPUs Streaming Multiprocessors with enough work.</p>
 <pre tabindex="0"><code>    def _indexed_neg_dot_forward_kernel(
         E,
         C,
@@ -446,15 +492,15 @@ C^\top_{x_i} E_i
         dot = (e * c).to(tl.float32)
         neg_dot = -tl.sum(dot, 1).to(out_ptrs.dtype.element_ty)
         tl.atomic_add(out_ptrs, neg_dot, mask=offs_b &lt; B)
-</code></pre><p>This way multiple thread blocks can compute over the same E tile, which introduces a need to synchronize threads (minimal overhead compared to the cost of underutilizing the gpu), this synchronization is done by :</p>
+</code></pre><p>This way multiple thread blocks can compute over the same $E$ tile, which introduces a need to synchronize the multiple threads writing to the same address in <strong>O</strong>(minimal overhead compared to the cost of underutilizing the gpu), this synchronization is done by :</p>
 <pre tabindex="0"><code>tl.atomic_add(out_ptrs, neg_dot, mask=offs_b &lt; B)
 </code></pre><p>The second part of our equation, the Log-Sum-Exp, is also implemented using a similar approach
 <img loading="lazy" src="/logsumexp.png" alt="Efficient Log-Sum-Exp"  />
 </p>
-<p>Again, to summarize:</p>
+<p>Again:</p>
 <ul>
 <li>
-<p>Each threadblock computes the log sum exp for $N_B$ tokens</p>
+<p>Each threadblock computes the partial log sum exp for $N_B$ tokens</p>
 </li>
 <li>
 <p>We parallelize over both NB(tokens) and VB (vocab size), to avoid loading up the full C matrix into SRAM for each token.</p>
@@ -509,7 +555,7 @@ C^\top_{x_i} E_i
     e_ptrs = E + (offs_b[:, None] * stride_eb + offs_d[None, :] * stride_ed)
     c_ptrs = C + (offs_v[None, :] * stride_cv + offs_d[:, None] * stride_cd)
 </code></pre><ul>
-<li>We use reduction to avoid loading up either E or C across the entire D Dimension, so we only ever load $E(N_B, D_B)$ and $C(V_B, D_B)$ at any point in time, accumulating the dot products in $\text{accum}$ in shared memory. $\text{accum}$ now contains partial logits for the <strong>NB</strong> token in this program, since it was computed from $E(N_B, D)$ and $C(D, V_B)$, and not the full $C(D, V)$</li>
+<li>We use reduction to avoid loading up either E or C across the entire D Dimension, so we only ever load $E(N_B, D_B)$ and $C(V_B, D_B)$ at any point in time, accumulating the dot products in $\text{accum}$ in shared memory. $\text{accum}$ now contains partial logits for the $N_B$ token in this program, since it was computed from $E(N_B, D)$ and $C(D, V_B)$, and not the full $C(D, V)$</li>
 </ul>
 <pre tabindex="0"><code>    accum = tl.zeros((BLOCK_B, BLOCK_V), dtype=tl.float32)
     for d in range(0, tl.cdiv(D, BLOCK_D)):
@@ -531,15 +577,16 @@ C^\top_{x_i} E_i
     e = tl.exp(logits - this_mx[:, None])
     this_lse = this_mx + tl.log(tl.sum(e, axis=1))
 </code></pre><ul>
-<li>Remember we only have partial logits of size $(N_B, V_B)$, since each thread block computes the logits over a $V_B$ portion of the model&rsquo;s vocabulary. $\text{this\_lse}$ holds the log-sum-exp for the partial logits of a particular thread block, which is not the full value we need. However, at this point, other programs with the same $\text{pid\_b}$ (handling the same token block), and different values for $\text{pid\_v}$, would have calculated their $\text{this\_lse}$ values for the other $(V_B)$ blocks in V, we need to find a way to sum these values without introducing race conditions across these threadblocks.</li>
+<li>Remember, we only have computed partial logits of size $(N_B, V_B)$ at this point, since each thread block computes the logits over a $V_B$ portion of the model&rsquo;s vocabulary. $\text{this\_lse}$ holds the log-sum-exp for the partial logits of a particular thread block, which is not the full value we need. However, at this point, other programs with the same $\text{pid\_b}$ (handling the same token block), and different values for $\text{pid\_v}$, would have calculated their $\text{this\_lse}$ values for the other $(V_B)$ blocks in V, we need to find a way to sum these values without introducing race conditions across threadblocks.</li>
 </ul>
 <pre tabindex="0"><code>    lse_ptrs = LSE + (stride_lse_b * off_b)
 
     this_locks = Locks + (pid_b // tl.cdiv(B, BLOCK_B * num_locks))
     while tl.atomic_cas(this_locks, 0, 1) == 1:
         pass
+    lse = tl.load(lse_ptrs, mask=o_mask, other=0.0, eviction_policy=&#34;evict_last&#34;)
 </code></pre><ul>
-<li>The final log-sum-exp are stored at LSE, however since multiple thread blocks with the same $\text{pid\_b}$ will write to the same locations in LSE, a spin atomic lock is used to prevent race conditions, and whoever holds the lock writes their computed LSE value.</li>
+<li>The total log-sum-exp are stored at $\text{LSE}$, however since multiple thread blocks with the same $\text{pid\_b}$ will write to the same address in $\text{LSE}$, a spin atomic lock is used to prevent race conditions, and the current program holding the lock loads the current value for $\text{LSE}$ into it&rsquo;s shared memory, adds it to it&rsquo;s partial logits in <strong>this_lse</strong> with the <strong>logaddexp</strong> function, and writes the new computed $\text{LSE}$ value back to <strong>LSE</strong> in global memory before releasing the lock for other threads.</li>
 </ul>
 <pre tabindex="0"><code>
     lse = tl.load(lse_ptrs, mask=o_mask, other=0.0, eviction_policy=&#34;evict_last&#34;)
@@ -548,146 +595,98 @@ C^\top_{x_i} E_i
 
     tl.atomic_xchg(this_locks, 0)
 </code></pre><ul>
-<li>Finally, we load the logits currently accumulated in $\text{LSE}$, and use the logaddexp function to add our partial logits $\text{this\_lse}$ to the accumulated $\text{lse}$ value, write back to our blocks in $\text{LSE}$, and finally release the lock.</li>
+<li>
+<p>We can add multiple partial log-sum-exps in this manner because :
+</p>
+\[
+    log(\exp(a) + \exp(b)) = a + \log(1 + \exp(b-a))
+    \]
+<p>
+which is basically what the <strong>tl_logaddexp</strong> function does.</p>
+</li>
+<li>
+<p>Finally, we load the logits currently accumulated in $\text{LSE}$, and use the logaddexp function to add our partial logits $\text{this\_lse}$ to the accumulated $\text{lse}$ value, write back to our blocks in $\text{LSE}$, and finally release the lock.</p>
+</li>
 </ul>
-<h3 id="backward-pass">Backward Pass<a hidden class="anchor" aria-hidden="true" href="#backward-pass">#</a></h3>
+<p>Together, this two kernels compute the full cross entropy loss without ever materializing a tensor larger than $[N_B, V_B]$, drastically reducing GPU global memory consumption, and effectively utilizing the GPU&rsquo;s streaming multiprocessors.</p>
+<h3 id="backward-pass">Backward Pass</h3>
+<h3 id="sample-training-run">Sample Training Run</h3>
 
+    </div>
+    <div class="mt-12 pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-2">
+      <a href="http://localhost:1313/tags/transformers/" class="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+        Transformers
+      </a>
+      <a href="http://localhost:1313/tags/deep-learning/" class="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+        Deep Learning
+      </a>
+      <a href="http://localhost:1313/tags/llms/" class="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+        LLMs
+      </a>
+    </div>
+    <nav class="mt-12 pt-6 border-t border-gray-100 dark:border-gray-800 grid grid-cols-2 gap-4">
+      <div>
+      </div>
+      <div class="text-right">
+        <a href="http://localhost:1313/articles/threadpools/" class="group flex flex-col gap-1 items-end">
+          <span class="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 flex items-center gap-1">
+            Next <span class="material-icons text-xs">arrow_forward</span>
+          </span>
+          <span class="text-sm font-medium text-gray-900 dark:text-white group-hover:underline leading-snug">Handling Blocking Coroutines effectively in Asyncio</span>
+        </a>
+      </div>
+    </nav>
 
+  </article>
+</main>
+
+<footer class="w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8 border-t border-gray-100 dark:border-gray-800 mt-auto">
+  <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+    <div class="text-center md:text-left">
+      © 2026 Damilola John. All rights reserved.
+    </div>
+    <div class="flex gap-4 sm:gap-6">
+      <a class="hover:text-gray-900 dark:hover:text-white transition-colors" href="https://twitter.com/damilojohn" target="_blank" rel="noopener noreferrer">Twitter</a>
+      <a class="hover:text-gray-900 dark:hover:text-white transition-colors" href="https://github.com/damilojohn" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="hover:text-gray-900 dark:hover:text-white transition-colors" href="https://www.linkedin.com/in/oduguwa-damilola/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+    </div>
   </div>
-
-  <footer class="post-footer">
-    <ul class="post-tags">
-      <li><a href="//localhost:1313/tags/transformers/">Transformers</a></li>
-      <li><a href="//localhost:1313/tags/deep-learning/">Deep Learning</a></li>
-      <li><a href="//localhost:1313/tags/llms/">LLMs</a></li>
-    </ul>
-<nav class="paginav">
-  <a class="next" href="//localhost:1313/articles/threadpools/">
-    <span class="title">Next »</span>
-    <br>
-    <span>Handling Blocking Coroutines effectively in Asyncio</span>
-  </a>
-</nav>
-
-  </footer>
-</article>
-    </main>
-    
-<footer class="footer">
-    <span>Copyright Damilola John © 2023</span>
-    <span>
-        Powered by
-        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
-        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
-    </span>
 </footer>
-<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
-        <path d="M12 6H0l6-6z" />
-    </svg>
-</a>
 
 <script>
-    let menu = document.getElementById('menu')
-    if (menu) {
-        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
-        menu.onscroll = function () {
-            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
-        }
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-nav');
+        const button = document.getElementById('mobile-menu-button');
+        const icon = document.getElementById('menu-icon');
+        menu.classList.toggle('open');
+        const isOpen = menu.classList.contains('open');
+        button.setAttribute('aria-expanded', isOpen);
+        icon.textContent = isOpen ? 'close' : 'menu';
     }
 
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener("click", function (e) {
-            e.preventDefault();
-            var id = this.getAttribute("href").substr(1);
-            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
-                    behavior: "smooth"
-                });
-            } else {
-                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
-            }
-            if (id === "top") {
-                history.replaceState(null, null, " ");
-            } else {
-                history.pushState(null, null, `#${id}`);
-            }
-        });
+    function closeMobileMenu() {
+        const menu = document.getElementById('mobile-nav');
+        const button = document.getElementById('mobile-menu-button');
+        const icon = document.getElementById('menu-icon');
+        menu.classList.remove('open');
+        button.setAttribute('aria-expanded', 'false');
+        icon.textContent = 'menu';
+    }
+
+    document.addEventListener('click', function(event) {
+        const menu = document.getElementById('mobile-nav');
+        const button = document.getElementById('mobile-menu-button');
+        if (menu && button && !menu.contains(event.target) && !button.contains(event.target)) {
+            closeMobileMenu();
+        }
     });
 
-</script>
-<script>
-    var mybutton = document.getElementById("top-link");
-    window.onscroll = function () {
-        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
-            mybutton.style.visibility = "visible";
-            mybutton.style.opacity = "1";
-        } else {
-            mybutton.style.visibility = "hidden";
-            mybutton.style.opacity = "0";
-        }
-    };
-
-</script>
-<script>
-    document.getElementById("theme-toggle").addEventListener("click", () => {
-        if (document.body.className.includes("dark")) {
-            document.body.classList.remove('dark');
-            localStorage.setItem("pref-theme", 'light');
-        } else {
-            document.body.classList.add('dark');
-            localStorage.setItem("pref-theme", 'dark');
-        }
-    })
-
-</script>
-<script>
-    document.querySelectorAll('pre > code').forEach((codeblock) => {
-        const container = codeblock.parentNode.parentNode;
-
-        const copybutton = document.createElement('button');
-        copybutton.classList.add('copy-code');
-        copybutton.innerHTML = 'copy';
-
-        function copyingDone() {
-            copybutton.innerHTML = 'copied!';
-            setTimeout(() => {
-                copybutton.innerHTML = 'copy';
-            }, 2000);
-        }
-
-        copybutton.addEventListener('click', (cb) => {
-            if ('clipboard' in navigator) {
-                navigator.clipboard.writeText(codeblock.textContent);
-                copyingDone();
-                return;
-            }
-
-            const range = document.createRange();
-            range.selectNodeContents(codeblock);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-            try {
-                document.execCommand('copy');
-                copyingDone();
-            } catch (e) { };
-            selection.removeRange(range);
-        });
-
-        if (container.classList.contains("highlight")) {
-            container.appendChild(copybutton);
-        } else if (container.parentNode.firstChild == container) {
-            
-        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
-            
-            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
-        } else {
-            
-            codeblock.parentNode.appendChild(copybutton);
+    window.addEventListener('resize', function() {
+        if (window.innerWidth >= 768) {
+            closeMobileMenu();
         }
     });
 </script>
+
 </body>
-
 </html>

@@ -2,36 +2,36 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>PyTorch on Home</title>
-    <link>//localhost:1313/tags/pytorch/</link>
+    <link>http://localhost:1313/tags/pytorch/</link>
     <description>Recent content in PyTorch on Home</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright Damilola John &amp;copy; 2023</copyright>
-    <lastBuildDate>Thu, 01 May 2025 04:14:46 +0100</lastBuildDate><atom:link href="//localhost:1313/tags/pytorch/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 01 May 2025 04:14:46 +0100</lastBuildDate><atom:link href="http://localhost:1313/tags/pytorch/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>SabiYarn</title>
-      <link>//localhost:1313/projects/sabiyarn/</link>
+      <link>http://localhost:1313/projects/sabiyarn/</link>
       <pubDate>Thu, 01 May 2025 04:14:46 +0100</pubDate>
       
-      <guid>//localhost:1313/projects/sabiyarn/</guid>
+      <guid>http://localhost:1313/projects/sabiyarn/</guid>
       <description>A 125M parameter decoder-only language model pretrained from scratch on 70B tokens across 11 Nigerian languages. Best performing model on these languages at AfricaNLP, ACL 2025.</description>
     </item>
     
     <item>
       <title>Text Descrambler</title>
-      <link>//localhost:1313/projects/text_descrambler/</link>
+      <link>http://localhost:1313/projects/text_descrambler/</link>
       <pubDate>Wed, 10 Jan 2024 04:14:46 +0100</pubDate>
       
-      <guid>//localhost:1313/projects/text_descrambler/</guid>
+      <guid>http://localhost:1313/projects/text_descrambler/</guid>
       <description>A GPT-2 model fine-tuned to reconstruct grammatically correct sentences from randomly ordered word sequences — e.g. turning &amp;#39;The expensive. show equations is computationally that&amp;#39; back into coherent prose.</description>
     </item>
     
     <item>
       <title> Image Localization and Object Distance Prediction with Pytorch.</title>
-      <link>//localhost:1313/articles/image-localization/</link>
+      <link>http://localhost:1313/articles/image-localization/</link>
       <pubDate>Wed, 16 Aug 2023 04:14:46 +0100</pubDate>
       
-      <guid>//localhost:1313/articles/image-localization/</guid>
+      <guid>http://localhost:1313/articles/image-localization/</guid>
       <description>Docking to the ISS would have been more fun if we actually had to dock with the international space station, regardless, we have an interesting problem of trying to create an automatic ISS docker by estimating the coordinates and distance of the international space station from images.
 In this article , we would be using deep learning to estimate the coordinates of an object in an image and also training the model to predict the distance of images .</description>
     </item>

@@ -1,4 +1,4 @@
-baseURL : 'damilojohn.github.io'
+baseURL : 'https://damilojohn.github.io/'
 languageCode : 'en-us'
 title : 'Home'
 theme : 'PaperMod'
@@ -26,7 +26,7 @@ markup:
 
 
 params:
-  env: development
+  env: production
   title: Damilola John 
   description : "Personal Blog"
   keywords: [Blog, Portfolio, PaperMod]

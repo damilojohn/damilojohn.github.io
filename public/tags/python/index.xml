@@ -2,63 +2,63 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Python on Home</title>
-    <link>//localhost:1313/tags/python/</link>
+    <link>http://localhost:1313/tags/python/</link>
     <description>Recent content in Python on Home</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Copyright Damilola John &amp;copy; 2023</copyright>
-    <lastBuildDate>Thu, 01 May 2025 04:14:46 +0100</lastBuildDate><atom:link href="//localhost:1313/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 01 May 2025 04:14:46 +0100</lastBuildDate><atom:link href="http://localhost:1313/tags/python/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>SabiYarn</title>
-      <link>//localhost:1313/projects/sabiyarn/</link>
+      <link>http://localhost:1313/projects/sabiyarn/</link>
       <pubDate>Thu, 01 May 2025 04:14:46 +0100</pubDate>
       
-      <guid>//localhost:1313/projects/sabiyarn/</guid>
+      <guid>http://localhost:1313/projects/sabiyarn/</guid>
       <description>A 125M parameter decoder-only language model pretrained from scratch on 70B tokens across 11 Nigerian languages. Best performing model on these languages at AfricaNLP, ACL 2025.</description>
     </item>
     
     <item>
       <title>AIpplier</title>
-      <link>//localhost:1313/projects/aipplier/</link>
+      <link>http://localhost:1313/projects/aipplier/</link>
       <pubDate>Tue, 15 Oct 2024 04:14:46 +0100</pubDate>
       
-      <guid>//localhost:1313/projects/aipplier/</guid>
+      <guid>http://localhost:1313/projects/aipplier/</guid>
       <description>An LLM-based web automation agent that automates job applications on popular job boards, built with LangGraph, Playwright, and GPT-4o.</description>
     </item>
     
     <item>
       <title>Zeeno</title>
-      <link>//localhost:1313/projects/zeeno/</link>
+      <link>http://localhost:1313/projects/zeeno/</link>
       <pubDate>Sun, 15 Sep 2024 04:14:46 +0100</pubDate>
       
-      <guid>//localhost:1313/projects/zeeno/</guid>
+      <guid>http://localhost:1313/projects/zeeno/</guid>
       <description>A semantic search-powered book recommendation service that lets you find books by describing topics or ideas you are thinking about in natural language.</description>
     </item>
     
     <item>
       <title>Text Descrambler</title>
-      <link>//localhost:1313/projects/text_descrambler/</link>
+      <link>http://localhost:1313/projects/text_descrambler/</link>
       <pubDate>Wed, 10 Jan 2024 04:14:46 +0100</pubDate>
       
-      <guid>//localhost:1313/projects/text_descrambler/</guid>
+      <guid>http://localhost:1313/projects/text_descrambler/</guid>
       <description>A GPT-2 model fine-tuned to reconstruct grammatically correct sentences from randomly ordered word sequences — e.g. turning &amp;#39;The expensive. show equations is computationally that&amp;#39; back into coherent prose.</description>
     </item>
     
     <item>
       <title>TraceRoute</title>
-      <link>//localhost:1313/projects/traceroute/</link>
+      <link>http://localhost:1313/projects/traceroute/</link>
       <pubDate>Thu, 15 Aug 2024 04:14:46 +0100</pubDate>
       
-      <guid>//localhost:1313/projects/traceroute/</guid>
+      <guid>http://localhost:1313/projects/traceroute/</guid>
       <description>A Python implementation of the classic Unix traceroute utility, tracing the full path followed by an internet packet from source to destination across the network.</description>
     </item>
     
     <item>
       <title>Handling Blocking Coroutines effectively in Asyncio</title>
-      <link>//localhost:1313/articles/threadpools/</link>
+      <link>http://localhost:1313/articles/threadpools/</link>
       <pubDate>Wed, 11 Dec 2024 04:14:46 +0100</pubDate>
       
-      <guid>//localhost:1313/articles/threadpools/</guid>
+      <guid>http://localhost:1313/articles/threadpools/</guid>
       <description>Introduction I recently had to implement a feature at work that basically sent a ton of emails, with custom attachments to a ton of buyers across the world. Since we had a broker, for placing mails on a queue that were picked and sent by workers, how architecture was already primed for asynchronous communication. However, on the client side, placing these emails asynchronously wasn&amp;rsquo;t as simple. The main path between creating the mail and actually placing it on the service bus (broker), consisted mainly of blocking, CPU heavy tasks ; reading excel files, adding user information, serializing excel files to an in-memory buffer, base64 encoding these bytes and decoding them to strings, before finally creating the message json and sending it to the queue (this is non blocking).</description>
     </item>
     
