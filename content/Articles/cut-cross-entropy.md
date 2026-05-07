@@ -1,5 +1,5 @@
 ---
-title: "Cut Cross Entropy: 20x Memory reduction in LLM Pre-training through optimized cross entropy kernels"
+title: "Cut Cross Entropy: 20x Memory reduction in LLM Pretraining through optimized cross entropy kernels"
 date: 2026-01-16T08:25:46+01:00
 draft: false
 cover:
@@ -11,15 +11,15 @@ Categories: ['NLP']
 
 # Introduction
 
-Whilst working on pretraining SabiYarn in 2025, I came across a really interesting paper by a team at Apple called "Cut Your Losses
-In Large-Vocabulary Language Models", they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes.
+Whilst working on pretraining [SabiYarn](https://huggingface.co/BeardedMonster/SabiYarn-125M) in 2025, I came across a really interesting [paper](https://arxiv.org/abs/2411.09009) by a team at Apple called "Cut Your Losses
+In Large-Vocabulary Language Models", they had a very interesting proposition - the cross entropy loss function has had a memory problem that has quietly crept up with a recent trend in LLM development, Large Vocabulary sizes. The paper introduces an optimised kernel for computing the cross entropy, called Cut Cross Entropy. Taking the Gemma 2 (2B) model as an example, CCE reduces the memory footprint of the cross entropy loss computation during training from 24 GB to 1 MB, and the total training-time memory consumption of the classifier head from 28 GB to 1 GB.
 
 Deepseek's emergence in December 2024 marked a significant turning point in the LLM industry. As major AI labs continued to scale model performance through ever-increasing compute budgets, DeepSeek showed that gains in performance, cost and scalability came from optimizing the whole stack, from compute kernels to optimized memory access, networking and storage.While pretraining DeepSeek V3, the team developed an open source distributed file system  3FS (Fire-Flyer- FileSystem) optimized for high throughput training, a new attention mechanism (MultiHead Latent Attention with custom kernels), a highly tuned communication library for mixture-of-experts models (Deep-EP), and Deep GEMM, an FP-8 optimized matrix multiplication kernel library.
 
 
 ## A bit on Cross Entropy
 
-Cross Entropy originates from information theory, and is a function that measures the difference between two probability distributions. In Machine Learning, the Cross Entropy Loss function is used in calculating the loss between a model's predicted probabilities and the dataset's true value. 
+Cross Entropy originates from information theory, and is a function that measures the difference between two probability distributions. In machine learning, the Cross Entropy loss function is used in calculating the loss between a model's predicted probabilities and the dataset's true value. 
 
 
 # LLM Pretraining
@@ -95,7 +95,7 @@ we have our input tensor x with shape:
 Thus our model takes 8 sequence with 2048 tokens each as input.
 
 
-After a forward pass through the model, the backbone network (transformer layers) generates an embedding matrix E of shape:
+After a forward pass through the model, the backbone network (transformer layers) generates an embedding matrix $E$ of shape:
 
 \[    
 B, S, D
@@ -109,7 +109,7 @@ D = Hidden Dimension
 D represents the size of our embedding vectors. 
 Essentially every token in the batch gets an embedding vector computed.
 
-Note: E is computed in parallel for all tokens, thanks to teacher forcing, the parallel nature of the transformer layers (self-attention) and broadcasting in modern deep learning frameworks like PyTorch.
+Note: $E$ is computed in parallel for all tokens in a sequence, thanks to teacher forcing, the parallel nature of the self attention mechanism.
 
 These embeddings are then passed through the Classifier C⊤, to generate the logits. These logits are of shape:
 
@@ -129,7 +129,7 @@ At inference, sampling from the model's predicted probabilities is efficient for
 At Training, for a sequence 
 
 \[
-(x1, . . . , xN)
+(x1, . . . . xN)
 \]
 
 the LLM's outputs
@@ -153,7 +153,7 @@ The cross entropy loss is given as:
 \ell_i(x) = - \log(\text{softmax}_{x_i}(C^\top E_i))
 \]
 
-C⊤ and E maintain their notation as the Classifier and Embedding matrices. 
+$C^\top_{x_i}$ and $E$ maintain their notation as the Classifier and Embedding matrices. 
 
 we know the softmax function to be:
 
@@ -179,7 +179,7 @@ which finally reduces to
 \]
 
 
-Using Gemma 2(8b), with a vocabulary size of 250,000 as an example:
+Using Gemma 2 (2B), with a vocabulary size of 256,128 as an example:
 
 To compute the cross entropy loss, 
 
@@ -189,7 +189,7 @@ we must first perform an indexed matrix multplicaton
 C^\top_{x_i} E_i
 \]
 
-This is a simple dot product between the column vector $C^\top_{x_i}$ which corresponds to the classifier weights for the target class (or token in this case) $x_i$ and the Embedding vector $E_I$ of token i in the input sequence.
+This is a simple dot product between the column vector $C^\top_{x_i}$ which corresponds to the classifier weights for the target class (or token in this case) $x_i$ and the Embedding vector $E_i$ of token i in the input sequence.
 
 To compute the second part of the equation, the  Log Sum Exp:
 
@@ -202,12 +202,15 @@ we first compute
 the logits for all tokens j in the model's vocab \[(C^\top_j E_i) \]
 
 - Find the max of the computed logits
-- Substract the logits from the max (This is done for numerical stability.)
+- Subtract the logits from the max (This is done for numerical stability.)
 - Compute the exponent of the normalized logits \[exp(C^\top_j E_i)\]
 
 - sum the exponents \[\sum_j \exp(C^\top_j E_i)\]
 
-- finally, we take the log of the sums
+- finally, we take the log of the sums to get back:
+\[
+\log \sum_j \exp(C^\top_j E_i)
+\]
 
 Each of these steps requires an intermediary tensor of size $ B, S, V$ in global memory.
 
@@ -221,7 +224,7 @@ about 256gb of memory, spent just computing the cross entropy loss, accounting f
 
 ## Cut Cross Entropy 
 
-Cut Cross Entropy paper approaches this problem by implementing efficient forward and backward passes using custom fused triton kernels, implementing ideas like tiling and indexed loads, together with the reformulation above. This approach ensures that only small chunks of E and C are loaded into the fast GPU shared memory, and by parallelizing across thread blocks, we don't incure any meaningful latency overheads.
+Cut Cross Entropy paper approaches this problem by implementing efficient forward and backward passes using custom fused triton kernels, implementing ideas like tiling and indexed loads, together with the reformulation above. This approach ensures that only small chunks of E and C are loaded into the fast GPU shared memory, and by parallelizing across thread blocks, we don't incure any meaningful latency overheads. The key idea is that if we never compute all V logits at once, we never need the large $ B, S, V $ tensors that takes so much memory in the first place.
 
 ### Forward Pass Kernels
 
@@ -238,21 +241,20 @@ The cut cross entropy paper breaks the terms above into two separate triton kern
 
 #### Indexed Negative Dot Product
 
-A naive computation of the indexed matrix multiplication involves either indexing the classifier weight matrix ($C^\top$) with a memory cost of **O(ND)** , and then performing the dot product, or computing $\left(C^\top E_i\right)$ which materializes the logits for every token and then indexing into the result to get the logit for the target class, with an $O(N|V|)$ memory cost.
+A naive computation of the indexed matrix multiplication involves either indexing the classifier weight matrix ($C^\top$) with a memory cost of $ O(ND) $ , and then performing the dot product, or computing $\left(C^\top_{x_i} E_i\right)$ which materializes the logits for every token and then indexing into the result to get the logit for the target class, with an $O(N|V|)$ memory cost.
 
-Cut Cross Entropy uses a different approach, 
+Cut Cross Entropy uses a tiled approach, 
 
 ![Indexed Matrix Multiplication](/indexed_mat_mul.png)
 
-The algorithm above can be simply summarized as:
-- Each thread block computes  **NB** dot products for **NB** tokens from the input sequence and writes them to **O**.
-- For a token position $i$ in the input sequence, to compute C^T X E, we need to load $x_i$ (the actual token value), $E_i$ and $C_{x_i}$ into the shared memory (SRAM) of our threadgroup.
-- Since we have limited shared memory, we can't load the full hidden states $E(N_B, D)$ and $C(N_B, D)$
-- We break $E$ and $C$ into tiles of size $(N_B, D_B)$ and $(N_B, D_B)$ respectively, and compute the dot product for these tiles, iterating over the **D** dimension of E and C and accumulating the scores in shared memory, before writing to **O** in global memory.
 
-Here's my implementation:
+- Each thread block computes  $N_B$ dot products for $N_B$ tokens from the input sequence and writes them to **O** in global memory.
+- For a token position $i$ in an input sequence, to compute $\left(C^\top E_i\right)$, we only load $x_i$ (the actual token value), $E_i$ and $C_{x_i}$ into the shared memory (SRAM) of our threadgroup.
+- Since we have limited shared memory, we can't load the full hidden states $E(N_B, D)$ and $C(N_B, D)$, that we need to calculate the dot product for the $N_B$ tokens.
+- We break $E$ and $C$ into tiles of size $(N_B, D_B)$ and $(N_B, D_B)$ respectively, and compute the dot product for these tiles, iterating over the **D** (reduction) dimension of **E** and **C** and accumulating the dot product in GPU shared memory, before writing to **O** in global memory.
+Here's my naive implementation:
 
-```
+```python
 def indexed_dot_kernel(
     E_ptr,  # Hidden states 
     C_ptr,  # Model's Classifier weight matrix
@@ -299,10 +301,11 @@ def indexed_dot_kernel(
     tl.store(O_ptr + x_offsets, -o, mask=x_mask)
 
 ```
-Each threadblock loads NB tokens, performs reduction over the D dimensions of the hidden states, and loads up tiles of $E$ and $C$, performs the dot product and accumulates the result. However, this is not efficient enough as we only parallelize of the token sequence length N, and would end up utilizing less than 60% of our Streaming Multiprocessors in most cases.
 
-The official apple implementation however, parellizes over both tokens and hidden dimensions, using a 2d logical kernel grid.
-```
+Each threadblock loads NB tokens, performs reduction over the D dimensions of the hidden states, and loads up tiles of $E$ and $C$, performs the dot product and accumulates the result over each tile. However, this is not efficient enough as we only parallelize of the token sequence length N, and would end up utilizing less than 60% of our Streaming Multiprocessors as **D** gets larger. Since we only launch $N / N_B$ threadblocks, if we had N = 2048, D = 4096, $N_B$ = 64, and BLOCK_D = 256, on an A100 with 108 Streaming Multiprocessors, our kernel launches only 32 programs (cdiv(2048, 64)), utilizing less than 30% of the GPU.
+
+The official apple implementation however, parellizes over both tokens and hidden dimensions, using a 2D logical kernel grid, that saturates the GPUs Streaming Multiprocessors with enough work.
+```python
     def _indexed_neg_dot_forward_kernel(
         E,
         C,
@@ -361,24 +364,24 @@ The official apple implementation however, parellizes over both tokens and hidde
         tl.atomic_add(out_ptrs, neg_dot, mask=offs_b < B)
 ```
 
-This way multiple thread blocks can compute over the same E tile, which introduces a need to synchronize threads (minimal overhead compared to the cost of underutilizing the gpu), this synchronization is done by :
+This way multiple thread blocks can compute over the same $E$ tile, which introduces a need to synchronize the multiple threads writing to the same address in **O**(minimal overhead compared to the cost of underutilizing the gpu), this synchronization is done by :
 
-```
+```python
 tl.atomic_add(out_ptrs, neg_dot, mask=offs_b < B)
 ```
-
+#### Log-Sum-Exp
 
 The second part of our equation, the Log-Sum-Exp, is also implemented using a similar approach 
 ![Efficient Log-Sum-Exp](/logsumexp.png)
 
 
-Again, to summarize:
-- Each threadblock computes the log sum exp for $N_B$ tokens
+Again:
+- Each threadblock computes the partial log sum exp for $N_B$ tokens
 
 
 - We parallelize over both NB(tokens) and VB (vocab size), to avoid loading up the full C matrix into SRAM for each token.
 
-```
+```python
 def _cce_lse_forward_kernel(
     E,
     C,
@@ -430,9 +433,9 @@ def _cce_lse_forward_kernel(
 
 ```
 
-- We use reduction to avoid loading up either E or C across the entire D Dimension, so we only ever load $E(N_B, D_B)$ and $C(V_B, D_B)$ at any point in time, accumulating the dot products in $\text{accum}$ in shared memory. $\text{accum}$ now contains partial logits for the **NB** token in this program, since it was computed from $E(N_B, D)$ and $C(D, V_B)$, and not the full $C(D, V)$
+- We use reduction to avoid loading up either E or C across the entire D Dimension, so we only ever load $E(N_B, D_B)$ and $C(V_B, D_B)$ at any point in time, accumulating the dot products in $\text{accum}$ in shared memory. $\text{accum}$ now contains partial logits for the $N_B$ token in this program, since it was computed from $E(N_B, D)$ and $C(D, V_B)$, and not the full $C(D, V)$
 
-```
+```python
     accum = tl.zeros((BLOCK_B, BLOCK_V), dtype=tl.float32)
     for d in range(0, tl.cdiv(D, BLOCK_D)):
         # Load the next block of E and C, generate a mask by checking the K dimension.
@@ -449,27 +452,29 @@ def _cce_lse_forward_kernel(
 ```
 
 - The log sum exp over the partial logits is now computed by finding the max of the logits over this $V_B$ block, substracting it from all logits, calculate the exponent of the sums, the log of the exponent, and then sum back the max to the log. 
-```
+```python
     this_mx = tl.max(logits, axis=1)
     e = tl.exp(logits - this_mx[:, None])
     this_lse = this_mx + tl.log(tl.sum(e, axis=1))
 
 ```
 
-- Remember we only have partial logits of size $(N_B, V_B)$, since each thread block computes the logits over a $V_B$ portion of the model's vocabulary. $\text{this\_lse}$ holds the log-sum-exp for the partial logits of a particular thread block, which is not the full value we need. However, at this point, other programs with the same $\text{pid\_b}$ (handling the same token block), and different values for $\text{pid\_v}$, would have calculated their $\text{this\_lse}$ values for the other $(V_B)$ blocks in V, we need to find a way to sum these values without introducing race conditions across these threadblocks.
+- Remember, we only have computed partial logits of size $(N_B, V_B)$ at this point, since each thread block computes the logits over a $V_B$ portion of the model's vocabulary. $\text{this\_lse}$ holds the log-sum-exp for the partial logits of a particular thread block, which is not the full value we need. However, at this point, other programs with the same $\text{pid\_b}$ (handling the same token block), and different values for $\text{pid\_v}$, would have calculated their $\text{this\_lse}$ values for the other $(V_B)$ blocks in V, we need to find a way to sum these values without introducing race conditions across threadblocks.
 
 
-```
+```python
     lse_ptrs = LSE + (stride_lse_b * off_b)
 
     this_locks = Locks + (pid_b // tl.cdiv(B, BLOCK_B * num_locks))
     while tl.atomic_cas(this_locks, 0, 1) == 1:
         pass
+    lse = tl.load(lse_ptrs, mask=o_mask, other=0.0, eviction_policy="evict_last")
 ```
 
-- The final log-sum-exp are stored at LSE, however since multiple thread blocks with the same $\text{pid\_b}$ will write to the same locations in LSE, a spin atomic lock is used to prevent race conditions, and whoever holds the lock writes their computed LSE value.
 
-```
+- The total log-sum-exp are stored at $\text{LSE}$, however since multiple thread blocks with the same $\text{pid\_b}$ will write to the same address in $\text{LSE}$, a spin atomic lock is used to prevent race conditions, and the current program holding the lock loads the current value for $\text{LSE}$ into it's shared memory, adds it to it's partial logits in **this_lse** with the **logaddexp** function, and writes the new computed $\text{LSE}$ value back to **LSE** in global memory before releasing the lock for other threads.
+
+```python
 
     lse = tl.load(lse_ptrs, mask=o_mask, other=0.0, eviction_policy="evict_last")
     lse = tl_logaddexp(lse, this_lse)
@@ -479,11 +484,140 @@ def _cce_lse_forward_kernel(
 
 ```
 
+- We can add multiple partial log-sum-exps in this manner because :
+    \[
+    log(\exp(a) + \exp(b)) = a + \log(1 + \exp(b-a))
+    \]
+ which is basically what the **tl_logaddexp** function does.
+
 - Finally, we load the logits currently accumulated in $\text{LSE}$, and use the logaddexp function to add our partial logits $\text{this\_lse}$ to the accumulated $\text{lse}$ value, write back to our blocks in $\text{LSE}$, and finally release the lock.
 
 
+Together, this two kernels compute the full cross entropy loss without ever materializing a tensor larger than $[N_B, V_B]$, drastically reducing GPU global memory consumption, and effectively utilizing the GPU's streaming multiprocessors.
 
 ### Backward Pass
 
 
+The backward pass follows the same idea, we compute gradients ∂L/∂E and ∂L/∂C without ever materializing all the V logits in memory at any point in time. 
 
+since our loss is given as :
+
+\[
+\ell_i(x) = - C^\top_{x_i} E_i + \log \sum_j \exp(C^\top_j E_i)
+\]
+
+
+We could summarize the computation graph of the forward pass as:
+
+![computation_graph](/cce_computation_graph.png)
+
+At the CCE node we need to compute local gradients ∂L/∂E and ∂L/∂C, why? because for every operation on the autograd computation graph, we must compute a local gradient with respect to it's input, given by the formula :
+
+node_grad = grad w.r.t. inputs x grad_out
+
+grad_out = gradient from the next node in the graph (backpropagating back to this node)
+
+For the cross entropy loss, the models's hidden states $E$ and classifier weight matrix $C$ were the inputs, thus ∂L/∂E and ∂L/∂C. 
+
+∂L/∂E backpropagates back into the transformer layers and ∂L/∂C into the classifer head to compute the updates to the model's weights at each step.
+
+As we can see, the CCE node branches into two nodes $\left(C^\top_{x_i} E_i\right)$ and $\log \sum_j \exp(C^\top_j E_i)$, thus our gradients ∂L/∂E and ∂L/∂C, are made of two parts, one from the indexed-dot product $\left(C^\top_{x_i} E_i\right)$, and the other from the log-sum-exp $\log \sum_j \exp(C^\top_j E_i)$.
+
+(explain the gradients here)
+
+
+
+
+(summarize the gradients)
+
+
+
+
+(go into the kernel)
+The backward pass kernels make use of two ideas, vocabulary sorting, and Gradient Filtering
+
+
+
+![CCE backward pass kernel](/backward_pass_kernel.png)
+
+
+
+### Benchmarking Gemma4
+
+Finally, I benchmarked cut cross entropy against torch_compile and vanilla cross entropy in two ways:
+
+- I ran a script that runs local inference through gemma4 on the alpaca dataset that generetes hidden states $E$, target labels $x$, and  extracts $C$, the classifier head of gemma4, and then uses CCE, toch_compile, and vanilla cross entropy to calculate the loss and gradients on these inputs , measuring peak GPU memory usage before and after running the loss computations.
+
+```python
+for this_test_data in tqdm.tqdm(
+        test_data, desc="Data source", disable=len(test_data) == 1
+    ):
+        gen = data.generator(this_test_data)
+        for rep in tqdm.trange(n_rep + 1, desc="Repetition"):
+            D = gen(dtype=dtype)
+            for kind in tqdm.tqdm(
+                kinds, desc="Benchmark kind", disable=len(kinds) == 1
+            ):
+                E, C, T = D.embedding, D.classifier, D.targets
+
+                this_softcap = softcap if softcap is not None else D.softcap
+
+                kwargs: dict[str, Any] = {"softcap": this_softcap}
+                if kind == "loss-fw":
+                    E.requires_grad_(True)
+                    C.requires_grad_(True)
+                    args = (E, C, T)
+                elif kind in {"loss-bw", "loss-fw-bw"}:
+                    E.requires_grad_(True)
+                    C.requires_grad_(True)
+
+                    args = (E, C, T)
+                    kwargs["backward"] = True
+                    kwargs["forward"] = kind == "loss-fw-bw"
+                    kwargs["pre_fn"] = clear_grad_fn
+                else:
+                    raise ValueError(f"Unknown kind {kind=}")
+
+                for m in tqdm.tqdm(methods, desc="Method", leave=False):
+                    if m in "liger" and kind.startswith("lse"):
+                        continue
+                    print(f"Loss calculated with {m}")
+
+                    # warmup (it==0)
+                    stats = memory.Stats.measure(
+                        (
+                            baseline
+                            if m == "baseline"
+                            else functools.partial(linear_cross_entropy, impl=m)
+                        ),
+                        *args,
+                        n_iteration=n_iteration if rep > 0 else 1,
+                        **kwargs,
+                    )
+```
+
+This benchmark was done on a 40GB A100, with the results shown below : 
+```
+
+============================================================
+  gemma4  |  loss-fw-bw
+============================================================
+Method                  Time (ms)    Memory (MB)
+-------------------- ------------ --------------
+cce                         84.49          794.2
+torch_compile               85.80         4888.0
+baseline                   148.26        24576.0
+
+
+============================================================
+  mistral-nemo  |  loss-fw-bw
+============================================================
+Method                  Time (ms)    Memory (MB)
+-------------------- ------------ --------------
+torch_compile              130.71         3408.0
+baseline                   154.69        12288.0
+cce                        179.16         1361.4
+```
+
+
+Additionally I finetuned a base gemma4 (E-2b-it) on the full alpaca instruction tuning dataset, on an 80GB A100, with the full memory usage stats shown below 
