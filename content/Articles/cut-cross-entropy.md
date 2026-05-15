@@ -275,7 +275,7 @@ def indexed_dot_kernel(
     x_offsets = pid * BLOCK_N + tl.arange(0, BLOCK_N)  # computing address offsets
     x_mask = x_offsets < N
 
-    # loading token indices
+    # loading target token indices
 
     x = tl.load(x_ptr + x_offsets, mask=x_mask, other=0) 
     # temporary tensor to store dot products for NB tokens in SRAM
@@ -433,7 +433,7 @@ def _cce_lse_forward_kernel(
 
 ```
 
-- We use reduction to avoid loading up either E or C across the entire D Dimension, so we only ever load $E(N_B, D_B)$ and $C(V_B, D_B)$ at any point in time, accumulating the dot products in $\text{accum}$ in shared memory. $\text{accum}$ now contains partial logits for the $N_B$ token in this program, since it was computed from $E(N_B, D)$ and $C(D, V_B)$, and not the full $C(D, V)$
+- We use reduction to avoid loading up either E or C across the entire D Dimension, so we only ever load $E(N_B, D_B)$ and $C(V_B, D_B)$ at any point in time, accumulating the dot products in $\text{accum}$ in shared memory. $\text{accum}$ now contains partial logits for the $N_B$ tokens, since it was computed from $E(N_B, D)$ and $C(D, V_B)$, and not the full $C(D, V)$
 
 ```python
     accum = tl.zeros((BLOCK_B, BLOCK_V), dtype=tl.float32)
@@ -451,7 +451,7 @@ def _cce_lse_forward_kernel(
         c_ptrs += BLOCK_D * stride_cd
 ```
 
-- The log sum exp over the partial logits is now computed by finding the max of the logits over this $V_B$ block, substracting it from all logits, calculate the exponent of the sums, the log of the exponent, and then sum back the max to the log. 
+- The log sum exp over the partial logits is now computed by finding the max of the logits over this $V_B$ block, substracting it from all logits, calculate the exponent, the sum of the exponents over the $V$ axis, and finally the log of the sums. This value is stored in this_lse in shared memory.
 ```python
     this_mx = tl.max(logits, axis=1)
     e = tl.exp(logits - this_mx[:, None])
@@ -459,7 +459,7 @@ def _cce_lse_forward_kernel(
 
 ```
 
-- Remember, we only have computed partial logits of size $(N_B, V_B)$ at this point, since each thread block computes the logits over a $V_B$ portion of the model's vocabulary. $\text{this\_lse}$ holds the log-sum-exp for the partial logits of a particular thread block, which is not the full value we need. However, at this point, other programs with the same $\text{pid\_b}$ (handling the same token block), and different values for $\text{pid\_v}$, would have calculated their $\text{this\_lse}$ values for the other $(V_B)$ blocks in V, we need to find a way to sum these values without introducing race conditions across threadblocks.
+- Remember, we only have computed partial logits of size $(N_B, V_B)$ at this point, since each thread block computes the logits over a $V_B$ portion of the model's vocabulary. $\text{this\_lse}$ holds the log-sum-exp for the partial logits of a particular thread block, which is not the full value we need. However, at this point, other threadblocks with the same $\text{pid\_b}$ (handling the same token block), and different values for $\text{pid\_v}$ (handling different blocks of $V$), would have also calculated their $\text{this\_lse}$ values for the other $(V_B)$ blocks in V, we need to find a way to sum these values without introducing race conditions across these threadblocks.
 
 
 ```python
@@ -469,77 +469,327 @@ def _cce_lse_forward_kernel(
     while tl.atomic_cas(this_locks, 0, 1) == 1:
         pass
     lse = tl.load(lse_ptrs, mask=o_mask, other=0.0, eviction_policy="evict_last")
-```
-
-
-- The total log-sum-exp are stored at $\text{LSE}$, however since multiple thread blocks with the same $\text{pid\_b}$ will write to the same address in $\text{LSE}$, a spin atomic lock is used to prevent race conditions, and the current program holding the lock loads the current value for $\text{LSE}$ into it's shared memory, adds it to it's partial logits in **this_lse** with the **logaddexp** function, and writes the new computed $\text{LSE}$ value back to **LSE** in global memory before releasing the lock for other threads.
-
-```python
-
-    lse = tl.load(lse_ptrs, mask=o_mask, other=0.0, eviction_policy="evict_last")
     lse = tl_logaddexp(lse, this_lse)
     tl.store(lse_ptrs, lse, mask=o_mask, eviction_policy="evict_last")
 
     tl.atomic_xchg(this_locks, 0)
-
 ```
 
-- We can add multiple partial log-sum-exps in this manner because :
+
+- The final log-sum-exp are stored at $\text{LSE}$, however since multiple thread blocks with the same $\text{pid\_b}$ will write to the same address in $\text{LSE}$, a spin atomic lock is used to prevent race conditions, and the current program holding the lock loads the current value for $\text{LSE}$ into $\text{lse}$ in it's shared memory, and adds it to it's partial logits computed in **this_lse** with the **logaddexp** function, and writes the new computed $\text{LSE}$ value back to **LSE** in global memory before releasing the lock for other threadblocks. The full log sum exp is the final value in LSE when all threadblocks have released the lock.
+We can add multiple partial log-sum-exps in this manner because :
     \[
     log(\exp(a) + \exp(b)) = a + \log(1 + \exp(b-a))
     \]
  which is basically what the **tl_logaddexp** function does.
 
-- Finally, we load the logits currently accumulated in $\text{LSE}$, and use the logaddexp function to add our partial logits $\text{this\_lse}$ to the accumulated $\text{lse}$ value, write back to our blocks in $\text{LSE}$, and finally release the lock.
 
-
-Together, this two kernels compute the full cross entropy loss without ever materializing a tensor larger than $[N_B, V_B]$, drastically reducing GPU global memory consumption, and effectively utilizing the GPU's streaming multiprocessors.
+Together, these two kernels compute the full cross entropy loss without ever materializing a tensor larger than $[N_B, V_B]$ in memory, drastically reducing GPU global memory consumption, and effectively utilizing the GPU's streaming multiprocessors.
 
 ### Backward Pass
 
+The backward pass for cross entropy produces two gradients,  ∂L/∂E and ∂L/∂C, however computing these gradients naively also requires large intermediate tensors that cannot fit in GPU memory. In this section, we look at how the gradients are reformulated before diving into the backward pass kernels.
 
-The backward pass follows the same idea, we compute gradients ∂L/∂E and ∂L/∂C without ever materializing all the V logits in memory at any point in time. 
-
-since our loss is given as :
+Since the cross entropy loss is given as :
 
 \[
 \ell_i(x) = - C^\top_{x_i} E_i + \log \sum_j \exp(C^\top_j E_i)
 \]
 
+The computation graph of the forward pass through the model can be summarized in the image below:
 
-We could summarize the computation graph of the forward pass as:
+![computation graph](/cce_computation_graph.png)
 
-![computation_graph](/cce_computation_graph.png)
+At the cross entropy loss calculation node on the graph, we need to compute local gradients ∂L/∂E and ∂L/∂C, why? because for every operation on the autograd computation graph, we must compute a local gradient with respect to it's inputs, using the formula :
 
-At the CCE node we need to compute local gradients ∂L/∂E and ∂L/∂C, why? because for every operation on the autograd computation graph, we must compute a local gradient with respect to it's input, given by the formula :
-
-node_grad = grad w.r.t. inputs x grad_out
+node_gradient = local_gradient x grad_out
 
 grad_out = gradient from the next node in the graph (backpropagating back to this node)
 
-For the cross entropy loss, the models's hidden states $E$ and classifier weight matrix $C$ were the inputs, thus ∂L/∂E and ∂L/∂C. 
+For the cross entropy loss, the models's hidden states $E$ and classifier weight matrix $C$ were the inputs, thus our required gradients are ∂L/∂E and ∂L/∂C. 
 
-∂L/∂E backpropagates back into the transformer layers and ∂L/∂C into the classifer head to compute the updates to the model's weights at each step.
+∂L/∂E backpropagates back into the transformer layers and is backpropagated to compute other gradients down the graph, while ∂L/∂C into the classifer head and is used to compute the updates to the model's classifer weights at each step.
 
 As we can see, the CCE node branches into two nodes $\left(C^\top_{x_i} E_i\right)$ and $\log \sum_j \exp(C^\top_j E_i)$, thus our gradients ∂L/∂E and ∂L/∂C, are made of two parts, one from the indexed-dot product $\left(C^\top_{x_i} E_i\right)$, and the other from the log-sum-exp $\log \sum_j \exp(C^\top_j E_i)$.
 
-(explain the gradients here)
+The key intuition behind both gradients is that they reduce to the difference between the model's softmax predictions and the ground truth one-hot label $\mathbf{1}_{x_i}$ (the target tokens). For every other token $j \neq x_i$ in the vocabulary, the gradient is simply the softmax value itself. This difference, softmax minus one-hot, is what drives the model's weights toward assigning higher probability to the correct token at each training step.
+
+Let's look at how the first gradient ∂L/∂E is calculated
+
+\[
+  \frac{\partial \ell_i}{\partial E_i} = -C_{x_i} + \frac{\partial}{\partial E_i} \log \sum_j \exp(C^\top_j E_i)
+\]
+
+Next, we expand the log-sum-exp derivative using the chain rule
+
+\[
+  \frac{\partial}{\partial E_i} \log \sum_j \exp(C^\top_j E_i) = \frac{\sum_j C_j \exp(C^\top_j E_i)}{\sum_j \exp(C^\top_j E_i)} =    
+  \sum_j C_j \cdot \text{softmax}_j(C^\top E_i)
+\]
+
+which gives ∂L/∂E as 
+
+\[
+  \frac{\partial \ell_i}{\partial E_i} = -C_{x_i} + \sum_j C_j \cdot p_{i,j}
+\]
+
+This is expressed in compact matrix form as:
+
+\[
+  \nabla E_i = \sum_j C_j \cdot S_{i,j} - C_{x_i}
+\]
+
+∂L/∂C follows a similar pattern, but we now differentiate with respect to the classifier weight $C_j$:
+
+\[
+  \nabla C_j = -E_i \,\mathbf{1}_{j = x_i} + \frac{\partial}{\partial C_j} \log \sum_k \exp(C^\top_k E_i)
+\]
+
+the derivative of the log-sum-exp with respect to $C_j$ is:
+  \[
+  \frac{\partial}{\partial C_j} \log \sum_k \exp(C^\top_k E_i) = S_{i,j} \cdot E_i
+  \]
+
+thus:
+\[
+  \nabla C_j = (S_{i,j} - \mathbf{1}_{j = x_i}) \cdot E_i
+\]
+
+and in compact matrix form:
+\[
+  \nabla C = \hat{S}^\top E
+\]
+
+Both gradients, ∂L/∂C and ∂L/∂E require two matrix multiplications, $(C^\top_j E_i)$  with size $[N,V] and $\hat{S}C$ or $\hat{S}^\top E$. and the intermediate matrix $\hat{S}$ of size $[N,V]$ that doesn't fit into GPU memory, we also perform non-linear operations on these tensors to calculate the softmax.
 
 
-
-
-(summarize the gradients)
-
-
-
-
-(go into the kernel)
-The backward pass kernels make use of two ideas, vocabulary sorting, and Gradient Filtering
-
-
+Before we go into the kernels, we also note that $\nabla C$ has shape $[V,D]$  and $\nabla E$ has shape $[N,D]$, the same as $\text{C}$ and $\text{E}$ respectively
 
 ![CCE backward pass kernel](/backward_pass_kernel.png)
 
+
+The backward kernel above computes $\nabla C$ and $\nabla E$ in one kernel. It reuses the same tiling approach from the log-sum-exp kernel to compute the matrix multiplication $\left(C^\top_{x_i} E_i\right)$. We reuse the $\text{LSE}$ value computed in the forward pass to calculate the softmax since
+
+ \[
+  S_{i,j} = \frac{\exp(C^\top_j E_i)}{\sum_k \exp(C^\top_k E_i)}
+  \]
+
+  Since $\text{LSE}_i = \log \sum_k \exp(C^\top_k E_i)$, the denominator of the softmax is simply $\exp(\text{LSE}_i)$:
+
+  \[
+  S_{i,j} = \frac{\exp(C^\top_j E_i)}{\exp(\text{LSE}_i)} = \exp(C^\top_j E_i - \text{LSE}_i)
+  \]
+
+  So the compact connection is:
+
+  \[
+  S = \exp(C^\top E - \text{LSE})
+  \]
+
+Finally, we can go through the kernel
+
+- The backward kernel calculates the addresses for $E$ and $c$ exactly the same as the LSE kernel we previously looked at.
+
+```
+def _cce_backward_kernel(
+    E,
+    C,
+    LSE,
+    dOut,
+    grad_scale,
+    Valids,
+    VocabOrdering,
+    softcap,
+    Targets,
+    dE,
+    dELocks,
+    dC,
+    dCLocks,
+    B,
+    D,
+    V,
+    n_de_locks_0,
+    n_de_locks_1,
+    n_dc_locks_0,
+    n_dc_locks_1,
+    stride_eb,
+    stride_ed,
+    stride_cv,
+    stride_cd,
+    stride_vb,
+    filter_eps,
+    B_BIN,
+    BLOCK_B: tl.constexpr,
+    BLOCK_V: tl.constexpr,
+    BLOCK_D: tl.constexpr,
+    MM_BACK_BLOCK_D: tl.constexpr,
+    GROUP_B: tl.constexpr,
+    EVEN_D: tl.constexpr,
+    MM_BACK_EVEN_D: tl.constexpr,
+    ITEM_DO: tl.constexpr,
+    HAS_VALIDS: tl.constexpr,
+    HAS_VOCAB_ORDERING: tl.constexpr,
+    FILTER_GRAD: tl.constexpr,
+    HAS_TARGETS: tl.constexpr,
+    HAS_SOFTCAP: tl.constexpr,
+    SHIFT: tl.constexpr,
+):
+    pid = tl.program_id(axis=0)
+    num_b_chunks = tl.cdiv(B, BLOCK_B)
+    num_v_chunks = tl.cdiv(V, BLOCK_V)
+    num_v_in_group = GROUP_B * num_v_chunks
+    group_id = pid // num_v_in_group
+    first_pid_b = group_id * GROUP_B
+    group_size_b = min(num_b_chunks - first_pid_b, GROUP_B)
+    pid_b = first_pid_b + ((pid % num_v_in_group) % group_size_b)
+    pid_v = (pid % num_v_in_group) // group_size_b
+
+    offs_b = (pid_b * BLOCK_B + tl.arange(0, BLOCK_B)) % B
+    if HAS_VALIDS:
+        offs_b = tl.load(Valids + stride_vb * offs_b)
+
+    offs_v = (pid_v * BLOCK_V + tl.arange(0, BLOCK_V)) % V
+    if HAS_VOCAB_ORDERING:
+        offs_v = tl.load(VocabOrdering + offs_v)
+
+    offs_d = tl.arange(0, BLOCK_D)
+    e_ptrs = E + (offs_b[:, None] * stride_eb + offs_d[None, :] * stride_ed)
+    c_ptrs = C + (offs_v[None, :] * stride_cv + offs_d[:, None] * stride_cd)
+
+```
+- we calculate $(C^\top_j E_i)$ exactly the same way as we did in the LSE kernel, computing partial Logits $[NB, VB]$, utilizing reduction over the D dimension and accumulating the dot products in accum
+
+```accum = tl.zeros((BLOCK_B, BLOCK_V), dtype=tl.float32)
+    for d in range(0, tl.cdiv(D, BLOCK_D)):
+        if EVEN_D:
+            e = tl.load(e_ptrs)
+            c = tl.load(c_ptrs)
+        else:
+            e = tl.load(e_ptrs, mask=offs_d[None, :] < D - d * BLOCK_D, other=0.0)
+            c = tl.load(c_ptrs, mask=offs_d[:, None] < D - d * BLOCK_D, other=0.0)
+
+        accum = tl.dot(e, c, accum)
+
+        e_ptrs += BLOCK_D * stride_ed
+        c_ptrs += BLOCK_D * stride_cd
+
+```
+
+- we load our LSE values from the forward pass, and calculate the softmax on the partial logits using  \[S = \exp(C^\top E - \text{LSE})\]. The softmax is stored in **d_accum**
+
+```
+if HAS_VALIDS:
+        lse = tl.load(LSE + (pid_b * BLOCK_B + tl.arange(0, BLOCK_B)) % B)
+    else:
+        lse = tl.load(LSE + offs_b)
+
+    d_accum = tl.exp(accum - lse[:, None])
+```
+
+- At this point **d_accum** holds $\text{softmax}_j(C^\top E_i)$ for the current $[N_B, V_B]$ tile. We now apply the one-hot subtraction from our gradient derivation. Recall that $\partial \ell / \partial C$ has two parts: a positive contribution from the log-sum-exp term, and a negative contribution from the indexed dot product term $-C^\top_{x_i} E_i$. Differentiating that second term with respect to $C_j$ gives $-E_i$ when $j = x_i$ and $0$ everywhere else — exactly the $-\mathbf{1}_{j=x_i}$ in $\nabla C_j = (S_{i,j} - \mathbf{1}_{j=x_i}) \cdot E_i$. `is_target` is a boolean matrix of shape $[N_B, V_B]$, True wherever $j = x_i$, and `tl.where` uses it to add $-1.0$ at those positions. After this step, **d_accum** holds $\text{softmax}_j(C^\top E_i) - \mathbf{1}_{j = x_i}$, which is exactly $\hat{S}$ from our gradient formula.
+
+```
+    if HAS_TARGETS:
+        targets = tl.load(Targets + ((offs_b + 1) if SHIFT else offs_b))
+        is_target = targets[:, None] == offs_v[None, :]
+        d_accum += tl.where(is_target, -1.0, 0.0)
+
+```
+At this point, d_accum holds the softmax over NB tokens the program is holding, and has a shape $[NB, VB]$. The next thing to do is to compute the matrix multiplication of the softmax(Ct.E).C for de and softmax (ct.E) and E for dc.
+
+We write a simple matmul kernel to avoid rewriting the same code twice, passing arguments softmax(ct.E), E or C where neccessary
+
+```
+@triton.jit
+def _mm_backward(
+    do,
+    da_ptrs,
+    partial_mask_a,
+    da_lock_ptr,
+    n_locks,
+    b_ptrs,
+    partial_mask_b,
+    stride_ad,
+    stride_bd,
+    D,
+    BLOCK_D: tl.constexpr,
+    EVEN_D: tl.constexpr,
+):
+    d_inds = tl.arange(0, BLOCK_D)[None, :]
+
+    da_ptrs = da_ptrs + d_inds * stride_ad
+    b_ptrs = b_ptrs + d_inds * stride_bd
+
+    for d in range(0, tl.cdiv(D, BLOCK_D)):
+        if EVEN_D:
+            mask = partial_mask_b
+        else:
+            mask = partial_mask_b & (d_inds < (D - d * BLOCK_D))
+
+        b = tl.load(b_ptrs, mask=mask, other=0.0)
+
+        da_i = tl.dot(do, b).to(da_ptrs.dtype.element_ty)
+
+        if EVEN_D:
+            mask = partial_mask_a
+        else:
+            mask = partial_mask_a & (d_inds < (D - d * BLOCK_D))
+
+        lock_offset = d // tl.cdiv(D, BLOCK_D * n_locks)
+        this_da_lock_ptr = da_lock_ptr + lock_offset
+
+        tl_lock_add(da_ptrs, da_i, mask, this_da_lock_ptr)
+
+        b_ptrs += BLOCK_D * stride_bd
+        da_ptrs += BLOCK_D * stride_ad
+
+```
+
+Looking at the above kernel carefully, our backward kernel computes the softmax over $[NB,VB]$ tokens, because we don't want to materialize the whole $[NB, VB]$ in memory. when calculating ∂L/∂C, softmax(cT.E) $[NB, VB]$ and C $[VB,D]$ produces $[NB, D]$ like we expect, but these values are not the final values of ∂L/∂C. Remember, the actual matrix multiplication is over S $[NB, v]$ (the entire vocab) and C $[V, D]$. Our tiled approach works because we parellelized over both N and V when launching the kernel. Just like with the LSE kernel, we end up with multiple threadlockss with the same pid_b (computing over the same NB tokens), but different pid_v, each computing their own portion of V, then we once again use a lock to sum the values from different thread blocks computing over the same NB tokens. This way the final value in the gradient is the real value we would have gotten if we had multiplied the large s.c in slow global memory.
+
+
+- Computing ∂L/∂C is straightforward, we pass args, d_accum (softmax), pointers to read E$[NB, D]$ and write to ∂L/∂C, locks, and other params we need for the tiled matmul.
+
+```
+   _mm_backward(
+        tl.trans(d_accum),
+        dC + (offs_v[:, None] * stride_cv),
+        v_mask,
+        dCLocks,
+        n_dc_locks_1,
+        E + (offs_b[:, None] * stride_eb),
+        b_mask,
+        stride_cd,
+        stride_ed,
+        D,
+        MM_BACK_BLOCK_D,
+        MM_BACK_EVEN_D,
+    )
+```
+
+The same applies to ∂L/∂E, we again pass the pointers to the softmax S, $C$
+
+```
+  _mm_backward(
+        d_accum,
+        dE + (offs_b[:, None] * stride_eb),
+        b_mask,
+        dELocks,
+        n_de_locks_1,
+        C + offs_v[:, None] * stride_cv,
+        v_mask,
+        stride_ed,
+        stride_cd,
+        D,
+        MM_BACK_BLOCK_D,
+        MM_BACK_EVEN_D,
+    )
+
+```
+
+The backward pass kernel takes slightly more memory than the forward pass, since we compute two matrix multiplications in one kernel. 
+
+We have now seen how we compute the gradients of the cross entropy loss function without ever materializing a tensor large than $[NB, VB]$ in memory.
 
 
 ### Benchmarking Gemma4
