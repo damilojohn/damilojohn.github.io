@@ -435,6 +435,8 @@ def _cce_lse_forward_kernel(
 
 - We use reduction to avoid loading up either E or C across the entire D Dimension, so we only ever load $E(N_B, D_B)$ and $C(V_B, D_B)$ at any point in time, accumulating the dot products in $\text{accum}$ in shared memory. $\text{accum}$ now contains partial logits for the $N_B$ tokens, since it was computed from $E(N_B, D)$ and $C(D, V_B)$, and not the full $C(D, V)$
 
+![tiled_matmul](/tiled_matmul.png)
+
 ```python
     accum = tl.zeros((BLOCK_B, BLOCK_V), dtype=tl.float32)
     for d in range(0, tl.cdiv(D, BLOCK_D)):
@@ -530,8 +532,10 @@ Next, we expand the log-sum-exp derivative using the chain rule
 which gives ∂L/∂E as 
 
 \[
-  \frac{\partial \ell_i}{\partial E_i} = -C_{x_i} + \sum_j C_j \cdot p_{i,j}
+  \frac{\partial \ell_i}{\partial E_i} = -C_{x_i} + \sum_j C_j \cdot S_{i,j}
 \]
+
+where $S_{i,j}$ = $\text{softmax}_j(C^\top E_i)$
 
 This is expressed in compact matrix form as:
 
@@ -560,7 +564,7 @@ and in compact matrix form:
   \nabla C = \hat{S}^\top E
 \]
 
-Both gradients, ∂L/∂C and ∂L/∂E require two matrix multiplications, $(C^\top_j E_i)$  with size $[N,V] and $\hat{S}C$ or $\hat{S}^\top E$. and the intermediate matrix $\hat{S}$ of size $[N,V]$ that doesn't fit into GPU memory, we also perform non-linear operations on these tensors to calculate the softmax.
+Both gradients, ∂L/∂C and ∂L/∂E require two matrix multiplications, $(C^\top_j E_i)$  with size $[N,V]$ and $\hat{S}C$ or $\hat{S}^\top E$. and the intermediate matrix $\hat{S}$ of size $[N,V]$ that doesn't fit into GPU memory, we also perform non-linear operations on these tensors to calculate the softmax.
 
 
 Before we go into the kernels, we also note that $\nabla C$ has shape $[V,D]$  and $\nabla E$ has shape $[N,D]$, the same as $\text{C}$ and $\text{E}$ respectively
@@ -588,7 +592,7 @@ The backward kernel above computes $\nabla C$ and $\nabla E$ in one kernel. It r
 
 Finally, we can go through the kernel
 
-- The backward kernel calculates the addresses for $E$ and $c$ exactly the same as the LSE kernel we previously looked at.
+- The backward kernel calculates the addresses for $E$ and $C$ exactly the same as the LSE kernel we previously looked at.
 
 ```
 def _cce_backward_kernel(
@@ -695,7 +699,7 @@ if HAS_VALIDS:
         d_accum += tl.where(is_target, -1.0, 0.0)
 
 ```
-At this point, d_accum holds the softmax over NB tokens the program is holding, and has a shape $[NB, VB]$. The next thing to do is to compute the matrix multiplication of the softmax(Ct.E).C for de and softmax (ct.E) and E for dc.
+At this point, d_accum holds the softmax over NB tokens the program is holding, and has a shape $[NB, VB]$. The next thing to do is to compute the matrix multiplication of $\text{softmax}_j(C^\top E_i)$ for ∂L/∂E and softmax $\text{softmax}_j(C^\top E_i)$  and $E$ for ∂L/∂C.
 
 We write a simple matmul kernel to avoid rewriting the same code twice, passing arguments softmax(ct.E), E or C where neccessary
 
@@ -745,7 +749,7 @@ def _mm_backward(
 
 ```
 
-Looking at the above kernel carefully, our backward kernel computes the softmax over $[NB,VB]$ tokens, because we don't want to materialize the whole $[NB, VB]$ in memory. when calculating ∂L/∂C, softmax(cT.E) $[NB, VB]$ and C $[VB,D]$ produces $[NB, D]$ like we expect, but these values are not the final values of ∂L/∂C. Remember, the actual matrix multiplication is over S $[NB, v]$ (the entire vocab) and C $[V, D]$. Our tiled approach works because we parellelized over both N and V when launching the kernel. Just like with the LSE kernel, we end up with multiple threadlockss with the same pid_b (computing over the same NB tokens), but different pid_v, each computing their own portion of V, then we once again use a lock to sum the values from different thread blocks computing over the same NB tokens. This way the final value in the gradient is the real value we would have gotten if we had multiplied the large s.c in slow global memory.
+Looking at the above kernel carefully, our backward kernel computes $\hat{S} = \text{softmax}(C^\top E) - \mathbf{1}_{j=x_i}$ over $[N_B, V_B]$ tiles, because we don't want to materialize the full $\hat{S}\ [N, V]$ in memory. When calculating $\partial \ell / \partial C$, the tile $\hat{S}\ [N_B, V_B]$ multiplied by $C\ [V_B, D]$ produces $[N_B, D]$ as expected, but these are only partial values of $\partial \ell / \partial C$. The actual matrix multiplication is over $\hat{S}\ [N, V]$ (the entire vocab) and $C\ [V, D]$. Our tiled approach works because we parallelized over both $N$ and $V$ when launching the kernel. Just like the LSE kernel, multiple thread blocks share the same $\text{pid\_b}$ (operating over the same $N_B$ tokens) but hold different $\text{pid\_v}$ values, each computing their portion of $V$. We use a lock to accumulate contributions from all thread blocks covering the same $N_B$ tokens, so the final gradient value matches what we would have obtained by multiplying the full $\hat{S} \cdot C$ in global memory.
 
 
 - Computing ∂L/∂C is straightforward, we pass args, d_accum (softmax), pointers to read E$[NB, D]$ and write to ∂L/∂C, locks, and other params we need for the tiled matmul.
@@ -796,7 +800,7 @@ We have now seen how we compute the gradients of the cross entropy loss function
 
 Finally, I benchmarked cut cross entropy against torch_compile and vanilla cross entropy in two ways:
 
-- I ran a script that runs local inference through gemma4 on the alpaca dataset that generetes hidden states $E$, target labels $x$, and  extracts $C$, the classifier head of gemma4, and then uses CCE, toch_compile, and vanilla cross entropy to calculate the loss and gradients on these inputs , measuring peak GPU memory usage before and after running the loss computations.
+- I ran a script that runs local inference through gemma4-2b-instruction_tuned on the alpaca dataset that generetes hidden states $E$, target labels $x$, and  extracts $C$, the classifier head of gemma4, and then uses CCE, toch_compile, and vanilla cross entropy to calculate the loss and gradients on these inputs , measuring peak GPU memory usage before and after running the loss computations.
 
 ```python
 for this_test_data in tqdm.tqdm(
