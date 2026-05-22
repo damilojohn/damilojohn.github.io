@@ -250,10 +250,10 @@ Cut Cross Entropy uses a tiled approach,
 - Since we have limited shared memory, we can't load the full hidden states $E(N_B, D)$ and $C(N_B, D)$, that we need to calculate the dot product for the $N_B$ tokens.
 - We break $E$ and $C$ into tiles of size $(N_B, D_B)$ and $(N_B, D_B)$ respectively, and compute the dot product for these tiles, iterating over the **D** (reduction) dimension of **E** and **C** and accumulating the dot product in GPU shared memory, before writing to **O** in global memory.
 
-$E_i$ = Embedding Vector for token $i$
-$C_{x_i}$ = $i$th row of the classifier matrix
-$N_B$ = BLOCK_B = Block size for each thread block (How many tokens each threadblock handles from the input sequence)
-**BLOCK_D** = Block size across the $D$ dimension (shared dimension of $E$ and $C$)
+- $E_i$ = Embedding Vector for token $i$ 
+- $C_{x_i}$ = $i$th row of the classifier matrix
+- $N_B$ = BLOCK_B = Block size for each thread block (How many tokens each threadblock handles from the input sequence)
+- **BLOCK_D** = Block size across the $D$ dimension (shared dimension of $E$ and $C$)
 
 Here's my naive implementation:
 
@@ -437,9 +437,9 @@ The second part of our equation, the Log-Sum-Exp, is also implemented using a si
 
 - We parallelize over both $N$ and $V$ (vocab size), loading $[V_B,D_B]$ tiles of $C$ into SRAM, to avOid materializing the large $[V, D]$ tensor for each token.
 
-$V_B$ = BLOCK_V =  Portion of the vocabulary.
+- $V_B$ = BLOCK_V =  Portion of the vocabulary.
 
-$D_B$ = BLOCK_D = Portion of the $D$ dimension.
+- $D_B$ = BLOCK_D = Portion of the $D$ dimension.
 
 #
 
