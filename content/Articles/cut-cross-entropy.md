@@ -1,5 +1,5 @@
 ---
-title: "Cut Cross Entropy: 20x Memory reduction in LLM Pretraining through optimized cross entropy kernels"
+title: "Cut Cross Entropy Deep Dive: 20x Memory reduction in LLM Pretraining through optimized triton kernels"
 date: 2026-01-16T08:25:46+01:00
 draft: false
 cover:
@@ -854,7 +854,11 @@ The same applies to ∂L/∂E which is $\hat{S}\ [N_B, V_B]$ multiplied by $C\ [
 
 ```
 
-The backward pass kernel takes more memory than the forward pass, since we compute two matrix multiplications in one kernel. 
+Additionally, cut cross entropy makes use of two techniques to improve GPU memory access patterns, *Gradient Filtering* and *Vocabulary Sorting*.
+In the softmax matrix $\hat{S}$ in the kernel above, with bfloat-16 precision, the authors noted that any value below $ε = 2^−12$ will likely be ignored due to truncation in the summation or rounding. This implies that for any column, at most $1/ε = 4096$ would have non-trivial values, and in practice the sparsity of $\hat{S}$ is much higher, with only 0.02% of the matrix being non-zero. CCE takes advantage, by ignoring the gradient computation for any $VB$ blocks of $\hat{S}$ with high enough sparsity (ε being the threshold).
+Vocabulary sorting builds on this, ideally we want tokens with non-negligible values in $\hat{S}$ to be contiguously located in memory as this helps with avoiding wasted computations on partially filled blocks
+The backward pass kernel takes slightly more memory than the forward pass, since we compute two matrix multiplications in one kernel.This is implemented by grouping the tokens by their average logits and dividing the Vocab dimension $V$ into groups with similar average logits.
+
 
 We have now seen how we compute the gradients of the cross entropy loss function without ever materializing a tensor large than $[NB, VB]$ in memory.
 
@@ -935,3 +939,7 @@ torch_compile              130.71         3408.0
 baseline                   154.69        12288.0
 cce                        179.16         1361.4
 ```
+
+CCE gets a 30x memory reduction on gemma4(much larger vocab size than mistrla nemo) with no meaningful latency overhead, significantly reducing training costs
+
+We have seen how a combination of clever mathematical reformulations, atomic concurrent operations and tiled matrix multiplication in fast GPU memory can be used to effectively reduce the memory footprint of the loss layer in language models training, especially in large vocabulary models where the memory gains are more apparent. The $[B, S, V]$ tensor that CCE avoids materializing grows linearly with vocabulary size making CCE's savings more dramatic in large vocab models. For multilingual models, code models, and any application where a large vocabulary is not optional, CCE is essentially free memory and a significantly lesser training cost.
