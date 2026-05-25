@@ -233,7 +233,7 @@ Since we already reformulated the cross entropy loss as:
 
 The cut cross entropy paper breaks the terms above into two separate triton kernels in the forward pass: 
 
-- An indexed Negative Dot Product 
+- A Negative Indexed Dot Product 
 - The Log Sum Exp
 
 #### Indexed Negative Dot Product Kernel
@@ -246,12 +246,12 @@ Cut Cross Entropy uses a tiled approach,
 
 
 - Each thread block computes  $N_B$ dot products for $N_B$ tokens from the input sequence(with $N$ tokens) and writes them to **O** in global memory.
-- For a token position $i$ in an input sequence, to compute $\left(C^\top E_i\right)$, we only load $x_i$ (the target token), $E_i$ and $C_{x_i}$ into the shared memory (SRAM) of our threadgroup.
-- Since we have limited shared memory, we can't load the full hidden states $E(N_B, D)$ and $C(N_B, D)$, that we need to calculate the dot product for the $N_B$ tokens.
-- We break $E$ and $C$ into tiles of size $(N_B, D_B)$ and $(N_B, D_B)$ respectively, and compute the dot product for these tiles, iterating over the **D** (reduction) dimension of **E** and **C** and accumulating the dot product in GPU shared memory, before writing to **O** in global memory.
+- For a token position $i$ in an input sequence, to compute $\left(C^\top E_i\right)$, we only need $x_i$ (the target token), $E_i$ and $C_{x_i}$ in the shared memory (SRAM) of our threadgroup.
+- Since fast shared memory is limited in size, we can't load the full $E(N_B, D)$ and $C(N_B, D)$, that we need to calculate the dot product for the $N_B$ tokens.
+- We break $E$ and $C$ into tiles of size $(N_B, D_B)$ and $(N_B, D_B)$ respectively, and compute the dot product for these tiles, iterating over the **D** (reduction) dimension of $E$ and $C$ and accumulating the dot product in GPU shared memory, before writing to **O** in global memory.
 
 - $E_i$ = Embedding Vector for token $i$ 
-- $C_{x_i}$ = $i$th row of the classifier matrix
+- $C_{x_i}$ = $x_i$th row of the classifier matrix
 - $N_B$ = BLOCK_B = Block size for each thread block (How many tokens each threadblock handles from the input sequence)
 - **BLOCK_D** = Block size across the $D$ dimension (shared dimension of $E$ and $C$)
 
@@ -367,11 +367,6 @@ The official apple implementation however, parellizes over both tokens $N$ and h
         tl.atomic_add(out_ptrs, neg_dot, mask=offs_b < B)
 ```
 
-This way multiple thread blocks can compute over the same $E$ tile, paralleizing across both $N$ and $D$ which introduces a need to synchronize the multiple threadblocks with the same $pid_b$ would write to the same address in **O**(minimal overhead compared to the cost of underutilizing the gpu), accumulating the dot product. This synchronization is done by :
-
-```python
-tl.atomic_add(out_ptrs, neg_dot, mask=offs_b < B)
-```
 
 Typically, we would calculate pid_b (what blocks of $E$ is a threadblock handling?) and pid_d(what portion of $D$ is a threadblock handling) by simply saying:
 ```python
@@ -383,14 +378,14 @@ where num_d_chunks = $D$ // BLOCK_D
 which leads to something like 
 
 ```
-pid=0 → (b=0, d=0)
-pid=1 → (b=0, d=1)
-pid=2 → (b=0, d=2)
-pid=3 → (b=1, d=0)
-pid=4 → (b=1, d=1)
-pid=5 → (b=1, d=2)
+pid=0 → (pid_b=0, pid_d=0)
+pid=1 → (pid_b=0, pid_d=1)
+pid=2 → (pid_b=0, pid_d=2)
+pid=3 → (pid_b=1, pid_d=0)
+pid=4 → (pid_b=1, pid_d=1)
+pid=5 → (pid_b=1, pid_d=2)
 ```
-The above works and would be fine for calculating address offsets in memory. Apple's implementation uses an idea that groups threadblocks loading the same tile of $E$ together in the grid, so they make effective use of the GPU'S L2 cache, which is what we see in the kernel.
+The above works and would be fine for calculating address offsets in memory. The author's implementation user a more efficient approach that groups threadblocks loading the same tile of $E$ together in the grid, so they make effective use of the GPU'S L2 cache, which is what we see in the kernel.
 
 ```
 num_v_in_group = GROUP_B * num_v_chunks    # = 2 * 3 = 6 programs per group
@@ -408,23 +403,29 @@ which gives
 num_v_in_group = 2 * 3 = 6s
 
 pid=0: group_id=0, first_pid_b=0, group_size_b=2
-       pid_b = 0 + (0 % 2) = 0,  pid_v = 0 // 2 = 0  → (b=0, v=0)
+       pid_b = 0 + (0 % 2) = 0,  pid_D = 0 // 2 = 0  → (pid_b=0, pid_d=0)
 
 pid=1: group_id=0, first_pid_b=0, group_size_b=2
-       pid_b = 0 + (1 % 2) = 1,  pid_v = 1 // 2 = 0  → (b=1, v=0)
+       pid_b = 0 + (1 % 2) = 1,  pid_D = 1 // 2 = 0  → (pid_b=1, pid_d=0)
 
 pid=2: group_id=0, first_pid_b=0, group_size_b=2
-       pid_b = 0 + (2 % 2) = 0,  pid_v = 2 // 2 = 1  → (b=0, v=1)
+       pid_b = 0 + (2 % 2) = 0,  pid_D = 2 // 2 = 1  → (pid_b=0, pid_d=1)
 
 pid=3: group_id=0, first_pid_b=0, group_size_b=2
-       pid_b = 0 + (3 % 2) = 1,  pid_v = 3 // 2 = 1  → (b=1, v=1)
+       pid_b = 0 + (3 % 2) = 1,  pid_D = 3 // 2 = 1  → (pid_b=1, pid_d=1)
 
 pid=4: group_id=0, first_pid_b=0, group_size_b=2
-       pid_b = 0 + (4 % 2) = 0,  pid_v = 4 // 2 = 2  → (b=0, v=2)
+       pid_b = 0 + (4 % 2) = 0,  pid_D = 4 // 2 = 2  → (pid_b=0, pid_d=2)
 
 pid=5: group_id=0, first_pid_b=0, group_size_b=2
-       pid_b = 0 + (5 % 2) = 1,  pid_v = 5 // 2 = 2  → (b=1, v=2)
+       pid_b = 0 + (5 % 2) = 1,  pid_D = 5 // 2 = 2  → (pid_b=1, pid_d=2)
 
+```
+
+This way multiple thread blocks can compute over the same $E$ tile and different $D$ tiles, paralleizing across both $N$ and $D$ which introduces a need to synchronize the multiple threadblocks. Since each program computes a dot product of  $E [N_B, D_B]$ and $C [D_B]$, the full dot product for any $ith$ token in the sequence is the sum of the partial dot products computed by all programs with **pid_b** = $i$. This addition is done atomically and synchronized by :
+
+```python
+tl.atomic_add(out_ptrs, neg_dot, mask=offs_b < B)
 ```
 
 
