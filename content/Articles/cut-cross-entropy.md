@@ -5,8 +5,8 @@ draft: false
 cover:
     image: "cce.png"
     alt: 'Cross Entropy'
-tags: ['Transformers','Deep Learning', 'LLMs']
-Categories: ['NLP']
+tags: ['Transformers','Triton', 'LLMs']
+Categories: ['LLMS', "GPU Programming", "kernels"]
 ---
 
 # Introduction

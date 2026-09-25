@@ -3,7 +3,17 @@
     "allow": [
       "mcp__claude_ai_Excalidraw__create_view",
       "mcp__claude_ai_Excalidraw__read_checkpoint",
-      "mcp__claude_ai_Excalidraw__export_to_excalidraw"
+      "mcp__claude_ai_Excalidraw__export_to_excalidraw",
+      "Bash(cd /c/Users/damil/Documents/GitHub/PocketCoach && find src -name \"*.py\" | head -100)",
+      "Read(//c/c/Users/damil/Documents/GitHub/PocketCoach/**)",
+      "PowerShell($env:PYTHONPATH=\"c:\\\\Users\\\\damil\\\\Documents\\\\GitHub\\\\PocketCoach\\\\src\"; & \"c:\\\\Users\\\\damil\\\\Documents\\\\GitHub\\\\PocketCoach\\\\.venv\\\\Scripts\\\\python.exe\" -c \"import pocketcoach.admin.models as m; from sqlalchemy.orm import configure_mappers; configure_mappers\\(\\); print\\('OK: all mappers configured'\\); u=m.PocketUser\\(email='x@y.z'\\); print\\('repr ->', repr\\(u\\)\\)\")",
+      "PowerShell(\"---phonenumbers?---\")",
+      "Bash(curl -s --max-time 25 \"https://nga-states-lga.onrender.com/fetch\")",
+      "Bash(curl -s --max-time 25 \"https://nga-states-lga.onrender.com/?state=Lagos\")",
+      "Bash(curl -s --max-time 30 \"https://nga-states-lga.onrender.com/fetch\")",
+      "Bash(echo \"EXIT=$?\")",
+      "WebFetch(domain:nga-states-lga.onrender.com)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\damil\\\\Documents\\\\GitHub\\\\NLNG-SCHEDULING-3-AI_MODELS\"; foreach \\($d in @\\('scripts','tests','notebooks','module_eval','output'\\)\\) { \"=== $d ===\"; Get-ChildItem $d -Recurse -File -ErrorAction SilentlyContinue | Select-Object -ExpandProperty FullName })"
     ]
   }
 }
