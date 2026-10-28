@@ -63,6 +63,27 @@
     .mobile-menu.open {
         max-height: 500px;
     }
+    /* Project highlights panel: smooth open where supported, otherwise snaps open */
+    :root { interpolate-size: allow-keywords; }
+    details.highlights summary { cursor: default; }
+    details.highlights summary::-webkit-details-marker { display: none; }
+    details.highlights::details-content {
+        block-size: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: block-size 0.3s ease, opacity 0.3s ease, content-visibility 0.3s allow-discrete;
+    }
+    details.highlights[open]::details-content {
+        block-size: auto;
+        opacity: 1;
+    }
+    details.highlights .chev { transition: transform 0.25s ease; }
+    details.highlights[open] .chev { transform: rotate(180deg); }
+    @keyframes nudge {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(161, 161, 170, 0); }
+        50% { box-shadow: 0 0 0 4px rgba(161, 161, 170, 0.18); }
+    }
+    details.highlights:not([open]) .nudge { animation: nudge 2.4s ease-in-out 3; }
 </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark transition-colors duration-300 antialiased min-h-screen flex flex-col font-sans">
@@ -132,13 +153,25 @@
         {{ if .Params.description }}
         <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl font-serif mb-4">{{ .Params.description }}</p>
         {{ end }}
+        {{- $highlights := .Params.highlights }}
+        {{- with $highlights }}
+        <details class="highlights">
+        <summary class="list-none">
+        {{- end }}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div class="flex flex-wrap gap-2">
                 {{- range .Params.tags }}
                 <span class="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-xs rounded font-medium">{{ . }}</span>
                 {{- end }}
             </div>
-            <div class="flex flex-wrap gap-x-4 gap-y-1">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1">
+                {{- with $highlights }}
+                <span class="nudge cursor-pointer inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-full border border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+                    Highlights
+                    <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-100 dark:bg-gray-800 text-[10px] font-semibold">{{ len . }}</span>
+                    <span class="material-icons chev text-base text-gray-400">expand_more</span>
+                </span>
+                {{- end }}
                 {{- if .Params.github }}
                 <a href="{{ .Params.github }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors min-h-[44px] sm:min-h-0">
                     <span class="material-icons text-sm">code</span>GitHub
@@ -156,6 +189,23 @@
                 {{- end }}
             </div>
         </div>
+        {{- with $highlights }}
+        </summary>
+        <div class="mt-4 rounded-md bg-gray-50 dark:bg-zinc-900 border border-gray-100 dark:border-zinc-800 p-4 sm:p-5">
+            <div class="grid sm:grid-cols-{{ cond (gt (len .) 3) 3 (len .) }} gap-4 sm:gap-y-5 sm:gap-x-0 sm:divide-x divide-gray-200 dark:divide-zinc-800">
+                {{- range . }}
+                <div class="sm:px-5 sm:first:pl-0 sm:last:pr-0">
+                    <p class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-1.5">
+                        {{- with .icon }}<span class="material-icons text-gray-400" style="font-size:15px">{{ . }}</span>{{ end }}{{ .label }}
+                        {{- if eq .status "wip" }}<span class="ml-1.5 px-1.5 py-px border border-gray-300 dark:border-zinc-700 text-gray-400 dark:text-gray-500 text-[10px] font-medium tracking-wider rounded">in progress</span>{{ end }}
+                    </p>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 font-serif leading-relaxed">{{ .text | markdownify }}</p>
+                </div>
+                {{- end }}
+            </div>
+        </div>
+        </details>
+        {{- end }}
     </div>
     {{- end }}
 </div>
