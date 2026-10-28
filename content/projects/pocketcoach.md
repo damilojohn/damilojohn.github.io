@@ -15,6 +15,6 @@ highlights:
     text: "OpenTelemetry traces, metrics and logs into Prometheus, Mimir, Loki and Grafana."
   - label: Video
     icon: movie
-    text: "Educational Video Generation, using Manim, Gemini, Temporal, and MinIO."
+    text: "Durable multistep agent workflow on DBOS that writes Manim scripts with Gemini, renders them in Modal sandboxes, encodes with ffmpeg (H.264, 480p, faststart) and serves from Cloudflare R2."
     status: wip
 ---
