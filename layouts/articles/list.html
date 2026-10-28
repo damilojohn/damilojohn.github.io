@@ -109,12 +109,14 @@
 <section>
 <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-6 sm:mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">All Articles</h3>
 <div class="space-y-4">
-    {{- $articles := where .Pages "Draft" false }}
-    {{- range $articles }}
+    {{- /* Drafts only reach .Pages under `hugo server -D`; production builds exclude them */}}
+    {{- range .Pages }}
     <a href="{{ .Permalink }}" class="group block border border-gray-100 dark:border-gray-800 rounded-lg p-5 sm:p-6 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm transition-all">
         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1 mb-3">
             <h2 class="text-base sm:text-lg font-semibold text-gray-900 dark:text-white leading-snug group-hover:underline">{{ .Title }}</h2>
-            <span class="text-xs font-mono text-gray-400 dark:text-gray-500 shrink-0 sm:ml-4">{{ .Date.Format "Jan 2006" }}</span>
+            <span class="text-xs font-mono text-gray-400 dark:text-gray-500 shrink-0 sm:ml-4">
+                {{- if .Draft }}<span class="mr-2 px-1.5 py-px border border-dashed border-gray-300 dark:border-gray-600 text-[10px] font-sans font-medium uppercase tracking-wider rounded">Draft</span>{{ end }}
+                {{- .Date.Format "Jan 2006" }}</span>
         </div>
         {{ if .Summary }}
         <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed font-serif mb-4">{{ .Summary | plainify | truncate 180 "..." }}</p>

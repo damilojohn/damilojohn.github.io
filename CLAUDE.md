@@ -85,7 +85,7 @@ weight: 1                          # controls display order (lower = first)
 ---
 ```
 
-**Draft behaviour**: Both `layouts/articles/list.html` and `layouts/projects/list.html` explicitly filter `Draft: false` at the template level, so drafts are hidden even when running `hugo server -D`.
+**Draft behaviour**: `layouts/articles/list.html` and `layouts/projects/list.html` list every page Hugo builds, so drafts appear (with a dashed "Draft" tag) under `hugo server -D` and are excluded from production builds by Hugo itself.
 
 **Projects tile link priority**: `demo` → `github` → `article` (first available becomes the title link).
 

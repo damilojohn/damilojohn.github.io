@@ -134,8 +134,8 @@
 <section>
 <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-6 sm:mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">All Projects</h3>
 <div class="space-y-8">
-    {{- $projects := where .Pages "Draft" false }}
-    {{- range $projects.ByWeight }}
+    {{- /* Drafts only reach .Pages under `hugo server -D`; production builds exclude them */}}
+    {{- range .Pages.ByWeight }}
     {{- $primaryLink := "" }}
     {{- if .Params.demo }}{{- $primaryLink = .Params.demo }}
     {{- else if .Params.github }}{{- $primaryLink = .Params.github }}
@@ -148,7 +148,9 @@
             {{ else }}
             <h4 class="text-xl font-semibold text-gray-900 dark:text-white">{{ .Title }}</h4>
             {{ end }}
-            <span class="text-sm font-mono text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">{{ .Date.Format "2006" }}</span>
+            <span class="text-sm font-mono text-gray-500 dark:text-gray-400 mt-1 sm:mt-0">
+                {{- if .Draft }}<span class="mr-2 px-1.5 py-px align-middle border border-dashed border-gray-300 dark:border-gray-600 text-[10px] font-sans font-medium uppercase tracking-wider rounded">Draft</span>{{ end }}
+                {{- .Date.Format "2006" }}</span>
         </div>
         {{ if .Params.description }}
         <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl font-serif mb-4">{{ .Params.description }}</p>
