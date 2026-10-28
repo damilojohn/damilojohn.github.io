@@ -1,7 +1,7 @@
 ---
 title: "Language Identification At Scale. Building a LID pipeline on 1TB for less than $30."
 date: 2026-09-25T06:36:46+01:00
-draft: false
+draft: true
 math: true
 cover:
     image: "diff_attn.png"
